@@ -10,14 +10,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import ru.max.springboot.service.UserService;
 
 @Configuration
 public class SecurityConfig {
-    private final UserDetailsService userDetailsService; // сервис, с помощью которого тащим пользователя
+    private final UserService userService; // сервис, с помощью которого тащим пользователя
     private final LoginSuccessHandler successUserHandler; // класс, в котором описана логика перенаправления пользователей по ролям
 
-    public SecurityConfig(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService, LoginSuccessHandler successUserHandler) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig(@Qualifier("userService") UserService userService, LoginSuccessHandler successUserHandler) {
+        this.userService = userService;
         this.successUserHandler = successUserHandler;
     }
 
