@@ -1,10 +1,12 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/database_SpringSecurity
+    url: jdbc:postgresql://localhost:5432/database_SpringSecurity_PreProject_3
     username: postgres
     password: postgre
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
+server:
+  port: 61950

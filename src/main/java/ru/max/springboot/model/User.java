@@ -1,18 +1,23 @@
 package ru.max.springboot.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Set;
 
-// Для того, чтобы в дальнейшим использовать класс User в Spring Security, он должен реализовывать интерфейс UserDetails.
-// UserDetails можно представить, как адаптер между БД пользователей и тем что требуется Spring Security внутри SecurityContextHolder
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +27,17 @@ public class User implements UserDetails {
     @NotEmpty(message = "Поле не должно быть пустым")
     @Size(min = 2, max = 50, message = "Имя должно быть в диапазоне от 2 до 50 символов")
     @Column(name = "name", unique = true)
-    private String name; // уникальное значение
+    private String name; // уникальное значение name
+
+    @NotEmpty(message = "Поле не должно быть пустым")
+    @Email(message = "Email должен быть валидным")
+    @Column(name = "email", unique = true)
+    private String email; // уникальное значение email
+
+    @NotNull(message = "Поле не должно быть пустым")
+    @Min(value = 0, message = "Возраст не может быть отрицательным")
+    @Column(name = "age")
+    private int age;
 
     @Column(name = "password")
     private String password;
@@ -34,44 +49,6 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
-
-    public User() {
-    }
-
-    public User(Long id, String name, String password, Set<Role> roles) {
-        this.id = id;
-        this.name = name;
-        this.password = password;
-        this.roles = roles;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

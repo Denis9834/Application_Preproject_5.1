@@ -39,8 +39,7 @@ public class AuthController {
         if (bindingResult.hasErrors()) {
             return "registration";
         }
-        if (!userService.createUser(user)) {
-            model.addAttribute("error", "Пользователь с таким именем уже существует");
+        if (!userService.createUser(user, bindingResult)) {
             return "registration";
         }
         return "redirect:/login";

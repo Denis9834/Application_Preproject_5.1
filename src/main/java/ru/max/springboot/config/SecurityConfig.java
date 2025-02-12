@@ -24,10 +24,9 @@ public class SecurityConfig {
 
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // http.csrf().disable(); - попробуйте выяснить сами, что это даёт (отключение защиты от межсайтовой подделки запросов)
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin").hasAuthority("ROLE_ADMIN") // разрешаем входить на /admin пользователям с ролью Admin
-                        .requestMatchers("/user").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN") // разрешаем входить на /user пользователям с ролью User and Admin
+                        .requestMatchers("/admin").hasRole("ADMIN") // разрешаем входить на /admin пользователям с ролью Admin
+                        .requestMatchers("/user").hasAnyRole("USER", "ADMIN") // разрешаем входить на /user пользователям с ролью User and Admin
                         .requestMatchers("/login", "/registration").permitAll() // доступность всем
                         .anyRequest().authenticated()  // Spring сам подставит свою логин форму
                 )

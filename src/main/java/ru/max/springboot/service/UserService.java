@@ -42,21 +42,41 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).orElse(null);
     }
 
-    //Поиск пользователя по имени
+    //Поиск пользователя по email
     public Optional<User> findByName(String name) {
         return userRepository.findByName(name);
     }
 
-    // Проверка имени пользователя на уникальность
-    public boolean isUsernameUnique(String name) {
+    //Поиск пользователя по email
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    // Проверка email на уникальность
+    public boolean isEmailUnique(String email) {
+        return !findByEmail(email).isPresent();
+    }
+
+    // Проверка имени на уникальность
+    public boolean isNameUnique(String name) {
         return !findByName(name).isPresent();
     }
 
     //Создание нового пользователя (по умолчанию с ролью User)
     @Transactional
-    public boolean createUser(User user) {
-        if (!isUsernameUnique(user.getUsername())) {
-            return false; //Имя занято
+    public boolean createUser(User user, BindingResult bindingResult) {
+        //проверка на уникальность имени
+        if (!isNameUnique(user.getName())) {
+            bindingResult.rejectValue("name", "error.user",
+                    "Пользователь с таким именем уже существует");
+            return false;
+        }
+
+        //проверка на уникальность email
+        if (!isEmailUnique(user.getEmail())) {
+            bindingResult.rejectValue("email", "error.user",
+                    "Пользователь с таким email уже существует");
+            return false;
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword())); // шифрование пароля
@@ -81,7 +101,7 @@ public class UserService implements UserDetailsService {
     public boolean updateUser(long id, User updateUser, BindingResult bindingResult) {
         User userToBeUpdated = findUserById(id);
 
-        // проверка на уникальность имени пользователя
+        // проверка на уникальность пользователя по имени
         if (!userToBeUpdated.getName().equals(updateUser.getName()) &&
                 userRepository.findByName(updateUser.getName()).isPresent()) {
             bindingResult.rejectValue(
@@ -89,7 +109,17 @@ public class UserService implements UserDetailsService {
             return false;
         }
 
+        // проверка на уникальность пользователя по email
+        if (!userToBeUpdated.getEmail().equals(updateUser.getEmail()) &&
+                userRepository.findByEmail(updateUser.getEmail()).isPresent()) {
+            bindingResult.rejectValue(
+                    "email", "error.user", "Пользователь с таким email уже существует");
+            return false;
+        }
+
         userToBeUpdated.setName(updateUser.getName());
+        userToBeUpdated.setAge(updateUser.getAge());
+        userToBeUpdated.setEmail(updateUser.getEmail());
 
         //для шифрования нового пароля
         if (updateUser.getPassword() != null && !updateUser.getPassword().isEmpty()) {
@@ -103,7 +133,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userRepository.findByName(username);
+        Optional<User> user = userRepository.findByEmail(username);
 
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("Пользователь не найден: " + username);
