@@ -1,5 +1,6 @@
 package ru.max.springboot.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -8,6 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import ru.max.springboot.dto.UserDTO;
+import ru.max.springboot.dto.UserResponseDTO;
 import ru.max.springboot.model.Role;
 import ru.max.springboot.model.User;
 import ru.max.springboot.repository.RoleRepository;
@@ -17,128 +20,157 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
 
     @Autowired
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
     }
 
     //Список всех пользователей
-    public List<User> findAllUsers() {
-        return userRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> findAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::convertToUserResponseDTO)
+                .collect(Collectors.toList());
     }
 
     //поиск пользователя по его id
+    @Transactional(readOnly = true)
     public User findUserById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
 
-    //Поиск пользователя по email
+    //Поиск пользователя по имени
+    @Transactional(readOnly = true)
     public Optional<User> findByName(String name) {
         return userRepository.findByName(name);
     }
 
     //Поиск пользователя по email
+    @Transactional(readOnly = true)
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    // Проверка email на уникальность
-    public boolean isEmailUnique(String email) {
-        return !findByEmail(email).isPresent();
-    }
-
-    // Проверка имени на уникальность
-    public boolean isNameUnique(String name) {
-        return !findByName(name).isPresent();
-    }
-
     //Создание нового пользователя (по умолчанию с ролью User)
     @Transactional
-    public boolean createUser(User user, BindingResult bindingResult) {
-        //проверка на уникальность имени
-        if (!isNameUnique(user.getName())) {
-            bindingResult.rejectValue("name", "error.user",
-                    "Пользователь с таким именем уже существует");
-            return false;
-        }
+    public UserResponseDTO createUser(UserDTO userDto) {
 
         //проверка на уникальность email
-        if (!isEmailUnique(user.getEmail())) {
-            bindingResult.rejectValue("email", "error.user",
-                    "Пользователь с таким email уже существует");
-            return false;
+        if (findByEmail(userDto.getEmail()).isPresent()) {
+            throw new RuntimeException("Пользователь с таким email уже существует");
+        }
+        //проверка на уникальность имени
+        if (findByName(userDto.getName()).isPresent()) {
+            throw new RuntimeException("Пользователь с таким именем уже существует");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // шифрование пароля
+        User user = new User();
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+        user.setAge(userDto.getAge());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        Role defaultUserRole = roleRepository.findByRole("ROLE_USER"); //при регистрации по default ROLE_USER
-        Set<Role> roles = new HashSet<>();
-        roles.add(defaultUserRole);
+        Set<Role> roles = userDto.getRoleId().stream()
+                .map(roleId -> roleService.getRoleById(roleId)
+                        .orElseThrow(() -> new RuntimeException("Роль не найдена")))
+                .collect(Collectors.toSet());
         user.setRoles(roles);
 
-        userRepository.save(user);
-        return true;
+        if (roles.isEmpty()) {
+            roleRepository.findByRole("ROLE_USER").ifPresent(roles::add); //при регистрации по default ROLE_USER, если не указано вручную
+        }
+
+        user.setRoles(roles);
+
+        User saveUser = userRepository.save(user);
+        log.info("Пользователь {} успешно добавлен", userDto.getEmail());
+        return convertToUserResponseDTO(saveUser);
+    }
+
+    //Преобразование User в UserResponseDTO
+    public UserResponseDTO convertToUserResponseDTO(User user) {
+        return new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getAge(),
+                user.getRoles().stream()
+                        .map(Role::getRole)
+                        .collect(Collectors.toList())
+        );
     }
 
     //удаление пользователя с БД
     @Transactional
-    public void deleteUser(Long id) {
+    public void deleteUser(Long id, User currentUser) {
+        if (id.equals(currentUser.getId())) {
+            throw new RuntimeException("Нельзя удалить самого себя!");
+        }
         userRepository.deleteById(id);
     }
 
     //обновление пользователя
     @Transactional
-    public boolean updateUser(long id, User updateUser, BindingResult bindingResult) {
+    public User updateUser(Long id, UserDTO userDto) {
         User userToBeUpdated = findUserById(id);
 
         // проверка на уникальность пользователя по имени
-        if (!userToBeUpdated.getName().equals(updateUser.getName()) &&
-                userRepository.findByName(updateUser.getName()).isPresent()) {
-            bindingResult.rejectValue(
-                    "name", "error.user", "Пользователь с таким именем уже существует");
-            return false;
+        if (!userToBeUpdated.getName().equals(userDto.getName()) &&
+                userRepository.findByName(userDto.getName()).isPresent()) {
+            throw new RuntimeException("Пользователь с таким именем уже существует");
         }
 
         // проверка на уникальность пользователя по email
-        if (!userToBeUpdated.getEmail().equals(updateUser.getEmail()) &&
-                userRepository.findByEmail(updateUser.getEmail()).isPresent()) {
-            bindingResult.rejectValue(
-                    "email", "error.user", "Пользователь с таким email уже существует");
-            return false;
+        if (!userToBeUpdated.getEmail().equals(userDto.getEmail()) &&
+                userRepository.findByEmail(userDto.getEmail()).isPresent()) {
+            throw new RuntimeException("Пользователь с таким email уже существует");
         }
 
-        userToBeUpdated.setName(updateUser.getName());
-        userToBeUpdated.setAge(updateUser.getAge());
-        userToBeUpdated.setEmail(updateUser.getEmail());
+        userToBeUpdated.setName(userDto.getName());
+        userToBeUpdated.setAge(userDto.getAge());
+        userToBeUpdated.setEmail(userDto.getEmail());
 
-        //для шифрования нового пароля
-        if (updateUser.getPassword() != null && !updateUser.getPassword().isEmpty()) {
-            userToBeUpdated.setPassword(passwordEncoder.encode(updateUser.getPassword()));
+        // Проверка на изменение пароля
+        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+            userToBeUpdated.setPassword(passwordEncoder.encode(userDto.getPassword())); // шифруем новый пароль
         }
 
-        userToBeUpdated.setRoles(updateUser.getRoles());
-        userRepository.save(userToBeUpdated);
-        return true;
+        if (userDto.getRoleId() == null || userDto.getRoleId().isEmpty()) {
+            throw new IllegalArgumentException("Роль не может отсутствовать");
+        }
+
+        Set<Role> roles = userDto.getRoleId().stream()
+                .map(roleService::getRoleById)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toSet());
+        userToBeUpdated.setRoles(roles);
+
+        return userToBeUpdated;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
         Optional<User> user = userRepository.findByEmail(username);
 
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("Пользователь не найден: " + username);
         }
-
         return user.get();
     }
 }

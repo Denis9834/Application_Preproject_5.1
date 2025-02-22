@@ -10,3 +10,8 @@ spring:
       ddl-auto: update
 server:
   port: 61950
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

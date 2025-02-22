@@ -6,6 +6,7 @@ import ru.max.springboot.model.Role;
 import ru.max.springboot.repository.RoleRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RoleService {
@@ -23,12 +24,12 @@ public class RoleService {
     }
 
     //Поиск роли по id
-    public Role findRoleById(Long id) {
-        return roleRepository.findById(id).orElse(null);
+    public Optional<Role> getRoleById(Long id) {
+        return roleRepository.findById(id);
     }
 
     //Поиск роли по названию
-    public Role findByRole(String roleName) {
+    public Optional<Role> findByRole(String roleName) {
         return roleRepository.findByRole(roleName);
     }
 }

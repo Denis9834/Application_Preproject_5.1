@@ -6,13 +6,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import ru.max.springboot.service.UserService;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
     private final UserService userService; // сервис, с помощью которого тащим пользователя
     private final LoginSuccessHandler successUserHandler; // класс, в котором описана логика перенаправления пользователей по ролям
@@ -25,20 +26,18 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin").hasRole("ADMIN") // разрешаем входить на /admin пользователям с ролью Admin
-                        .requestMatchers("/user").hasAnyRole("USER", "ADMIN") // разрешаем входить на /user пользователям с ролью User and Admin
-                        .requestMatchers("/login", "/registration").permitAll() // доступность всем
+                        .requestMatchers("/login", "/static/**", "/js/**", "/index").permitAll() // доступность всем
                         .anyRequest().authenticated()  // Spring сам подставит свою логин форму
                 )
                 .formLogin(login -> login
-                        .loginPage("/login")
                         .successHandler(successUserHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login")
                         .permitAll()
-                );
+                )
+                .csrf(csrf -> csrf.disable());
         return http.build();
     }
 
