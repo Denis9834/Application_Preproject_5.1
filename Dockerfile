@@ -1,3 +1,10 @@
+#Сборка
+FROM maven:3.6.3-jdk-11 AS build
+COPY . /app
+WORKDIR /app
+RUN mvn clean package
+
+#Запуск
 #Добавляем образ OpenJDK 17
 FROM openjdk:17-jdk-slim
 
@@ -5,7 +12,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 #Указываем путь к Jar-файлу нашего проекта
-COPY target/Application_Preproject_5.1-0.0.1-SNAPSHOT.jar application.jar
+COPY --from=build /app/target/Application_Preproject_5.1-0.0.1-SNAPSHOT.jar application.jar
 
 #Укажем порт
 EXPOSE 8080
