@@ -8,9 +8,9 @@ services:
     image: postgres
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgre
-      - POSTGRES_DB=database_SpringSecurity_PreProject_3
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - pg_exampleJava:/var/lib/postgresql/data
     ports:
@@ -18,12 +18,12 @@ services:
 
   app:
     restart: always
-    build: .
+    image: denis9834/application_5:latest
     ports:
       - "8080:8080"
     depends_on:
       - database
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/database_SpringSecurity_PreProject_3
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgre
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
