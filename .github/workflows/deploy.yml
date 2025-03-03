@@ -1,14 +1,14 @@
 name: Deploy Workflow
 
 on:
-  push:
-    branches:
+  push: 
+    branches: 
       - master
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -18,7 +18,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
+      
       - name: Build and push Docher Hub
         run: |
           docker build -t denis9834/application_5:latest .
