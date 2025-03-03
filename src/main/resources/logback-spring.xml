@@ -8,7 +8,7 @@
             <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
                 <providers>
                     <mdc/>
-                    <context/>
+                    <context/>194.87.99.49
                     <logLevel/>
                     <loggerName/>
                     <pattern>
