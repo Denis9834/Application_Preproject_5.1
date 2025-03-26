@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-users
+      author: Denis9834
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: name
+                  value: 'admin'
+              - column:
+                  name: email
+                  value: 'admin@mail.ru'
+              - column:
+                  name: age
+                  value: '22'
+              - column:
+                  name: password
+                  value: '$2a$10$77qZXDrEK/zbbxDJuYU2aOd4pp3F5lJ.Qf9JTz6TJhEFf1alQMN4.'

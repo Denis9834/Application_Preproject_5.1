@@ -1,9 +1,9 @@
-name: Deploy Workflow
+name: Deploy Demo App
 
 on:
   push: 
     branches: 
-      - master
+      - demo
 
 jobs:
   build-and-push:
@@ -21,19 +21,19 @@ jobs:
       
       - name: Build and push Docker Hub
         run: |
-          docker build -t denis9834/application_5:latest .
-          docker push denis9834/application_5:latest
+          docker build -t denis9834/application_5:demo .
+          docker push denis9834/application_5:demo
 
-      - name: Copy docker-compose.yml to server
+      - name: Copy docker-compose-demo.yml to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: 194.87.99.49
           username: artur
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml"
+          source: "docker-compose-demo.yml"
           target: "/home/artur/myProject"
 
-      - name: Deploy application
+      - name: Deploy demo application
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: 194.87.99.49
@@ -41,7 +41,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/artur/myProject
-            docker pull denis9834/application_5:latest
-            docker-compose -f /home/artur/myProject/docker-compose.yml down
-            docker-compose -f /home/artur/myProject/docker-compose.yml up -d --build
+            docker pull denis9834/application_5:demo
+            docker-compose -f /home/artur/myProject/docker-compose-demo.yml down
+            docker-compose -f /home/artur/myProject/docker-compose-demo.yml up -d --build
             docker system prune -af

@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-interviews_table-test
+      author: Denis9834
+      changes:
+        - insert:
+            tableName: interviews
+            columns:
+              - column:
+                  name: user_id
+                  value: 1
+              - column:
+                  name: organization
+                  value: "TestCompany"
+              - column:
+                  name: grade
+                  value: "Middle"
+              - column:
+                  name: job_link
+                  value: "https://test.com"
+              - column:
+                  name: contact
+                  value: "@Test22"
+              - column:
+                  name: project
+                  value: "Test Project"
+              - column:
+                  name: recruiter
+                  value: "Test"
+              - column:
+                  name: interview_data_time
+                  valueDate: "2025-03-25T10:00:00"
+              - column:
+                  name: comments
+                  value: "Тестовое собеседование"

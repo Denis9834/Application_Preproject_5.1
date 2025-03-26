@@ -1,5 +1,5 @@
 volumes:
-  pg_exampleJava:
+  pg_demoJava:
 
 services:
   database:
@@ -10,15 +10,15 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - pg_exampleJava:/var/lib/postgresql/data
+      - pg_demoJava:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
-  app:
+  demo-app:
     restart: always
-    image: denis9834/application_5:latest
+    image: denis9834/application_5:demo
     ports:
-      - "8080:8080"
+      - "61950:8080"
     depends_on:
       - database
     environment:

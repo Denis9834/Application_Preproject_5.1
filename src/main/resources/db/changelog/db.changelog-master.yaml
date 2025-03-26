@@ -5,3 +5,13 @@ databaseChangeLog:
       file: db/changelog/changeset/create-roles-table.yaml
   - include:
       file: db/changelog/changeset/create-users_roles-table.yaml
+  - include:
+      file: db/changelog/changeset/create-interviews-table.yaml
+  - include:
+      file: db/changelog/changeset/insert-users.yaml
+  - include:
+      file: db/changelog/changeset/insert-role.yaml
+  - include:
+      file: db/changelog/changeset/insert-users_roles.yaml
+  - include:
+      file: db/changelog/changeset/insert-interviews_table.yaml

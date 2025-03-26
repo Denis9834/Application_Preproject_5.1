@@ -2,7 +2,9 @@ $(document).ready(function () {
     loadUsers();
     loadUserInfo();
     loadCurrentUser();
-    loadUserRolesSidebar()
+    loadUserRolesSidebar();
+    loadAllInterviews();
+    loadUserInterviews()
 });
 
 //Загрузка пользователя в бар
@@ -117,7 +119,7 @@ function loadUsers() {
                             <td>${user.name}</td>
                             <td>${user.email}</td>
                             <td>${user.age}</td>
-                           <td>${roles}</td>
+                            <td>${roles}</td>
                             <td>
                                 <button class="btn btn-success edit-btn" data-id="${user.id}">Редактировать</button>
                                 <button class="btn btn-danger delete-btn" data-id="${user.id}">Удалить</button>
@@ -129,6 +131,76 @@ function loadUsers() {
         },
         error: function () {
             showMessage('error', 'Не удалось загрузить пользователей');
+        }
+    });
+}
+
+// Получение всех собеседований у Admin
+function loadAllInterviews() {
+    $.ajax({
+        url: '/api/interviews',
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            const tableBody = $('#interviewsAll tbody');
+            tableBody.empty();
+            data.forEach(interview => {
+                const row = `
+                <tr>
+                        <td>${interview.organization}</td>
+                        <td>${interview.grade}</td>
+                        <td><a href="${interview.jobLink}" target="_blank">Ссылка</a></td>
+                        <td>${interview.contact || ''}</td>
+                        <td>${interview.project || ''}</td>
+                        <td>${interview.recruiter || ''}</td>
+                        <td>${new Date(interview.dataTime).toLocaleString()}</td>
+                        <td>${interview.comment || ''}</td>
+                        <td>
+                            <button class="btn btn-success edit-user-interview" data-id="${interview.id}">Редактировать</button>
+                            <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить️</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.append(row);
+            });
+        },
+        error: function () {
+            showMessage('error', 'Ошибка при загрузке собеседований');
+        }
+    });
+}
+
+// Получение собеседований (User)
+function loadUserInterviews() {
+    $.ajax({
+        url: '/api/interviews',
+        method: 'GET',
+        dataType: 'json',
+        success: function (interviews) {
+            const tbody = $('#interviewsTable tbody');
+            tbody.empty();
+            interviews.forEach(interview => {
+                const row = `
+                    <tr>
+                        <td>${interview.organization}</td>
+                        <td>${interview.grade}</td>
+                        <td><a href="${interview.jobLink}" target="_blank">вакансия</a></td>
+                        <td>${interview.contact || ''}</td>
+                        <td>${interview.project || ''}</td>
+                        <td>${interview.recruiter || ''}</td>
+                        <td>${new Date(interview.dataTime).toLocaleString()}</td>
+                        <td>${interview.comment || ''}</td>
+                        <td>
+                            <button class="btn btn-success edit-user-interview" data-id="${interview.id}">Редактировать</button>
+                            <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить️</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+        },
+        error: function () {
+            showMessage('error', 'Не удалось загрузить собеседования');
         }
     });
 }
@@ -300,6 +372,43 @@ $('#newUserForm').on('submit', function (e) {
             } else {
                 showMessage('error', 'Ошибка при добавлении пользователя: ' + xhr.responseText);
             }
+        }
+    });
+});
+
+// Показать модалку добавления (User)
+$('#addUserInterview').on('click', function () {
+    $('#addInterviewForm')[0].reset();
+    $('#addInterviewModal').modal('show');
+});
+
+// Отправка формы добавления
+$('#addInterviewForm').on('submit', function (e) {
+    e.preventDefault();
+
+    const formData = {
+        organization: $('input[name="organization"]').val(),
+        grade: $('input[name="grade"]').val(),
+        jobLink: $('input[name="jobLink"]').val(),
+        contact: $('input[name="contact"]').val(),
+        project: $('input[name="project"]').val(),
+        recruiter: $('input[name="recruiter"]').val(),
+        interviewDate: $('input[name="interviewDate"]').val(),
+        comment: $('input[name="comment"]').val()
+    };
+
+    $.ajax({
+        url: '/api/interviews',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(formData),
+        success: function () {
+            $('#addInterviewModal').modal('hide');
+            showMessage('success', 'Собеседование добавлено!');
+            loadUserInterviews();
+        },
+        error: function () {
+            showMessage('error', 'Ошибка при добавлении собеседования');
         }
     });
 });

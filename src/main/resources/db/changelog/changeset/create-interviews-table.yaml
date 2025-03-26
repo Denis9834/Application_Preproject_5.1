@@ -1,0 +1,54 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-interviews
+      author: Denis9834
+      changes:
+        - createTable:
+            tableName: interviews
+            columns:
+              - column:
+                  name: interview_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: fk_user_id
+                    references: users(user_id)
+                    nullable: false
+              - column:
+                  name: organization
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: grade
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: job_link
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: contact
+                  type: varchar(255)
+              - column:
+                  name: project
+                  type: varchar(255)
+              - column:
+                  name: recruiter
+                  type: varchar(255)
+              - column:
+                  name: interview_data_time
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: comments
+                  type: text
