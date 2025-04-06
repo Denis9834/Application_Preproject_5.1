@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,7 +18,7 @@ public class Interview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "interview_id")
-    private Long id;
+    private Long interviewId;
 
     @NotEmpty(message = "Поле не должно быть пустым")
     @Column(name = "organization", nullable = false)
@@ -37,8 +38,8 @@ public class Interview {
     @Column(name = "project")
     private String project;
 
-    @Column(name = "recruiter")
-    private String recruiter;
+    @Column(name = "salary_offer")
+    private BigDecimal salaryOffer;
 
     @NotNull(message = "Поле не должно быть пустым")
     @Column(name = "interview_data_time", nullable = false)
@@ -46,6 +47,16 @@ public class Interview {
 
     @Column(name = "comments")
     private String comments;
+
+    @Column(name = "interview_notes")
+    private String interviewNotes;
+
+    @Column(name = "final_offer")
+    private BigDecimal finalOffer;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private InterviewStatus status = InterviewStatus.SCHEDULED;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

@@ -5,17 +5,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.max.springboot.model.User;
-import ru.max.springboot.service.UserService;
+import ru.max.springboot.service.impl.UserServiceImpl;
 
 @RestController
 @RequestMapping("/api")
 public class UserRestController {
 
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
     @Autowired
-    public UserRestController(UserService userService) {
-        this.userService = userService;
+    public UserRestController(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
     }
 
     //страница пользователя

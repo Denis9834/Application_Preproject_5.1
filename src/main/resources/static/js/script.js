@@ -7,7 +7,7 @@ $(document).ready(function () {
     loadUserInterviews()
 });
 
-//Загрузка пользователя в бар
+//Загрузка пользователя в бар (отображение инфы о текущем пользователе)
 function loadUserInfo() {
     $.ajax({
         url: '/api/user',
@@ -22,7 +22,7 @@ function loadUserInfo() {
     });
 }
 
-//Отображение доступных ролей у пользователя в боковой панели
+//Отображение доступных ролей у пользователя в боковой панели (роли текущего пользователя)
 function updateSidebar(userRoles) {
     const sidebar = $('#sidebar');
     sidebar.empty();
@@ -58,6 +58,7 @@ function updateSidebar(userRoles) {
     });
 }
 
+//Обработка существующих ролей у пользователя и загрузка в боковую панель
 function loadUserRolesSidebar() {
     $.ajax({
         url: '/api/user',
@@ -101,7 +102,7 @@ function loadCurrentUser() {
     });
 }
 
-// Загрузка списка пользователей
+// Загрузка списка пользователей у Admin
 function loadUsers() {
     $.ajax({
         url: '/api/admin/users',
@@ -152,9 +153,9 @@ function loadAllInterviews() {
                         <td><a href="${interview.jobLink}" target="_blank">Ссылка</a></td>
                         <td>${interview.contact || ''}</td>
                         <td>${interview.project || ''}</td>
-                        <td>${interview.recruiter || ''}</td>
                         <td>${new Date(interview.dataTime).toLocaleString()}</td>
-                        <td>${interview.comment || ''}</td>
+                        <td>${interview.salaryOffer || ''}</td>
+                        <td>${interview.comments || ''}</td>
                         <td>
                             <button class="btn btn-success edit-user-interview" data-id="${interview.id}">Редактировать</button>
                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить️</button>
@@ -170,7 +171,7 @@ function loadAllInterviews() {
     });
 }
 
-// Получение собеседований (User)
+// Получение собеседований у User
 function loadUserInterviews() {
     $.ajax({
         url: '/api/interviews',
@@ -184,15 +185,20 @@ function loadUserInterviews() {
                     <tr>
                         <td>${interview.organization}</td>
                         <td>${interview.grade}</td>
-                        <td><a href="${interview.jobLink}" target="_blank">вакансия</a></td>
-                        <td>${interview.contact || ''}</td>
-                        <td>${interview.project || ''}</td>
-                        <td>${interview.recruiter || ''}</td>
+                        <td><a href="${interview.jobLink}" target="_blank">Ссылка</a></td>
+                        <td>${interview.contact}</td>
+                        <td>${interview.project}</td>
                         <td>${new Date(interview.dataTime).toLocaleString()}</td>
-                        <td>${interview.comment || ''}</td>
+                        <td>${interview.salaryOffer}</td>
+                        <td>${interview.finalOffer == null ? "-" : interview.finalOffer}</td>
+                        <td>${interview.comments}</td>
+                        <td>${interview.statusLabel}</td>
+                        
                         <td>
                             <button class="btn btn-success edit-user-interview" data-id="${interview.id}">Редактировать</button>
-                            <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить️</button>
+                            <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
+                            <button class="btn btn-info passed-interview-btn" data-id="${interview.id}">Закрыть собеседование</button>
+                            <button class="btn btn-warning offer-received-btn" data-id="${interview.id}">Получен оффер</button>
                         </td>
                     </tr>
                 `;
@@ -227,7 +233,7 @@ $('#logoutForm').on('submit', function (e) {
     });
 });
 
-// Редактирование пользователя
+// Редактирование пользователя у User
 $(document).on('click', '.edit-btn', function () {
     const userId = $(this).data('id');
     $.ajax({
@@ -250,7 +256,7 @@ $(document).on('click', '.edit-btn', function () {
     });
 });
 
-// Сохранение изменений при редактировании пользователя
+// Сохранение изменений при редактировании пользователя (User)
 $('#editUserForm').on('submit', function (e) {
     e.preventDefault();
 
@@ -293,7 +299,7 @@ $('#editUserForm').on('submit', function (e) {
     });
 });
 
-// Удаление пользователя (модальное окно)
+// Удаление пользователя (модальное окно) (Admin)
 $(document).on('click', '.delete-btn', function () {
     const userId = $(this).data('id');
     $.ajax({
@@ -313,7 +319,7 @@ $(document).on('click', '.delete-btn', function () {
     });
 });
 
-// кнопка "Удалить" пользователя
+// кнопка "Удалить" пользователя (Admin)
 $('#confirmDeleteButton').on('click', function () {
     const userId = $('#modalUserId').val();
     $.ajax({
@@ -329,7 +335,7 @@ $('#confirmDeleteButton').on('click', function () {
     });
 });
 
-// Добавление нового пользователя
+// Добавление нового пользователя (Admin)
 $('#newUserForm').on('submit', function (e) {
     e.preventDefault();
 
@@ -376,13 +382,16 @@ $('#newUserForm').on('submit', function (e) {
     });
 });
 
-// Показать модалку добавления (User)
-$('#addUserInterview').on('click', function () {
+// Показать модалку добавления собседований общая(User/Admin)
+$('#addInterview, #addUserInterview').on('click', function () {
     $('#addInterviewForm')[0].reset();
+    const now = new Date();
+    const formatted = now.toISOString().slice(0, 16);
+    $('#interviewDataTime').val(formatted);
     $('#addInterviewModal').modal('show');
 });
 
-// Отправка формы добавления
+// Отправка формы добавления собеса
 $('#addInterviewForm').on('submit', function (e) {
     e.preventDefault();
 
@@ -392,9 +401,9 @@ $('#addInterviewForm').on('submit', function (e) {
         jobLink: $('input[name="jobLink"]').val(),
         contact: $('input[name="contact"]').val(),
         project: $('input[name="project"]').val(),
-        recruiter: $('input[name="recruiter"]').val(),
-        interviewDate: $('input[name="interviewDate"]').val(),
-        comment: $('input[name="comment"]').val()
+        dataTime: $('input[name="interviewDate"]').val(),
+        salaryOffer: $('input[name="salaryOffer"]').val(),
+        comments: $('input[name="comments"]').val()
     };
 
     $.ajax({
@@ -405,10 +414,169 @@ $('#addInterviewForm').on('submit', function (e) {
         success: function () {
             $('#addInterviewModal').modal('hide');
             showMessage('success', 'Собеседование добавлено!');
-            loadUserInterviews();
+
+            if ($('#adminPanel').hasClass('show active')) {
+                loadAllInterviews(); // Админ
+            } else {
+                loadUserInterviews(); // Обычный пользователь
+            }
         },
         error: function () {
             showMessage('error', 'Ошибка при добавлении собеседования');
+        }
+    });
+});
+
+// Общие переменные для update interview (User)
+let currentFinalOffer = null;
+let currentStatus = null;
+let currentInterviewNotes = null;
+
+// Редактирование собеса у User
+$(document).on('click', '.edit-user-interview', function () {
+    const id = $(this).data('id');
+    $.get({
+        url: `/api/interviews/${id}`,
+        method: 'GET',
+        success: function (interview) {
+            $('#editInterviewId').val(interview.interviewId);
+            $('#editOrganization').val(interview.organization);
+            $('#editGrade').val(interview.grade);
+            $('#editJobLink').val(interview.jobLink);
+            $('#editContact').val(interview.contact);
+            $('#editProject').val(interview.project);
+            $('#editDate').val(interview.dataTime.slice(0, 16));
+            $('#editSalaryOffer').val(interview.salaryOffer);
+            $('#editComments').val(interview.comments);
+            currentFinalOffer = interview.finalOffer;
+            currentStatus = interview.status;
+            currentInterviewNotes = interview.interviewNotes;
+            $('#editInterviewModal').modal('show');
+        },
+
+        error: function () {
+            showMessage('error', 'Ошибка при загрузке собеседования');
+        }
+    });
+});
+
+// Сохранение изменений после редактирования собеса у User
+$('#editInterviewForm').on('submit', function (e) {
+    e.preventDefault();
+    const id = $('#editInterviewId').val();
+    const updatedData = {
+        organization: $('#editOrganization').val(),
+        grade: $('#editGrade').val(),
+        jobLink: $('#editJobLink').val(),
+        contact: $('#editContact').val(),
+        project: $('#editProject').val(),
+        dataTime: $('#editDate').val(),
+        salaryOffer: $('#editSalaryOffer').val(),
+        comments: $('#editComments').val(),
+        finalOffer: currentFinalOffer,
+        status: currentStatus,
+        interviewNotes: currentInterviewNotes
+    };
+
+    $.ajax({
+        url: `/api/interviews/${id}`,
+        method: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify(updatedData),
+        success: function () {
+            $('#editInterviewModal').modal('hide');
+            showMessage('success', 'Запись обновлена');
+            loadUserInterviews();
+        },
+        error: function () {
+            showMessage('error', 'Ошибка при обновлении записи');
+        }
+    });
+});
+
+// Общая переменная для хранения ID собеса, которое нужно удалить
+let interviewToDeleteId = null;
+
+//Удаление собеса (вызов модального окна) у User
+$(document).on('click', '.delete-user-interview', function () {
+    // Сохраняем ID интервью, которое передаётся через data-id кнопки
+    interviewToDeleteId = $(this).data('id');
+    // Показываем модальное окно с ID "deleteInterviewModel"
+    $('#deleteInterviewModel').modal('show');
+});
+
+// кнопка "Удалить" собеседование в модальном окне (User)
+$('#confirmDeleteButtonInterview').on('click', function () {
+    if (interviewToDeleteId != null) {
+        $.ajax({
+            url: `/api/interviews/${interviewToDeleteId}`,
+            method: 'DELETE',
+            success: function () {
+                showMessage('success', 'Собеседование удалено');
+                // Скрытие модального окна после успешного удаления
+                $('#deleteInterviewModel').modal('hide');
+                // Обновляем данные на странице
+                loadUserInterviews();
+                // Обнуление переменной
+                interviewToDeleteId = null;
+            },
+            error: function () {
+                showMessage('error', 'Ошибка при удалении собеседования');
+            }
+        });
+    }
+});
+
+// Обработчик для кнопки "Пройдено собеседование"
+$(document).on('click', '.passed-interview-btn', function () {
+    var interviewId = $(this).data('id');
+    $('#passedInterviewForm').data('interviewId', interviewId);
+    $('#passedInterviewModal').modal('show');
+});
+
+// Отправка формы для "Пройдено собеседование"
+$('#passedInterviewForm').on('submit', function (e) {
+    e.preventDefault();
+    var interviewId = $(this).data('interviewId');
+    var notes = $('#interviewNotes').val();
+    $.ajax({
+        url: '/api/interviews/' + interviewId + '/passed',
+        method: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify({notes: notes}),
+        success: function (response) {
+            $('#passedInterviewModal').modal('hide');
+            loadUserInterviews();
+        },
+        error: function () {
+            alert('Ошибка при обновлении статуса собеседования');
+        }
+    });
+});
+
+// Обработчик для кнопки "Получен оффер"
+$(document).on('click', '.offer-received-btn', function () {
+    var interviewId = $(this).data('id');
+    $('#offerForm').data('interviewId', interviewId);
+    $('#offerModal').modal('show');
+});
+
+// Отправка формы для "Получен оффер"
+$('#offerForm').on('submit', function (e) {
+    e.preventDefault();
+    var interviewId = $(this).data('interviewId');
+    var offer = $('#offerAmount').val();
+    $.ajax({
+        url: '/api/interviews/' + interviewId + '/offer',
+        method: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify({offer: offer}),
+        success: function (response) {
+            $('#offerModal').modal('hide');
+            loadUserInterviews();
+        },
+        error: function () {
+            alert('Ошибка при обновлении информации об оффере');
         }
     });
 });

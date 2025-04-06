@@ -40,10 +40,12 @@
             <!-- Вкладки -->
             <ul class="nav nav-tabs" id="userTabs" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profilePanel" role="tab">О пользователе</a>
+                    <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profilePanel" role="tab">О
+                        пользователе</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="my-interviews-tab" data-bs-toggle="tab" href="#interviewsPanel" role="tab">Мои собеседования</a>
+                    <a class="nav-link" id="my-interviews-tab" data-bs-toggle="tab" href="#interviewsPanel" role="tab">Мои
+                        собеседования</a>
                 </li>
             </ul>
             <!-- Контейнер вкладок -->
@@ -73,34 +75,26 @@
                 </div>
 
                 <!-- Вкладка: Мои собеседования -->
-                <div class="tab-pane fade" id="interviewsPanel" role="tabpanel" aria-labelledby="my-interviews-tab">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mt-2 mb-2">Мои собеседования</h5>
-                        </div>
-                        <div class="card-body">
-                            <!-- Кнопка "Добавить" -->
-                            <button class="btn btn-primary mb-3" id="addUserInterview">Добавить</button>
-
-                            <!-- Таблица -->
-                            <table class="table table-bordered" id="interviewsTable">
-                                <thead>
-                                <tr>
-                                    <th>Организация</th>
-                                    <th>Грейд</th>
-                                    <th>Ссылка на вакансию</th>
-                                    <th>Контакт</th>
-                                    <th>Проект</th>
-                                    <th>Рекрутер</th>
-                                    <th>Дата</th>
-                                    <th>Комментарии</th>
-                                    <th>Действия</th>
-                                </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="tab-pane fade" id="interviewsPanel">
+                    <button class="btn btn-primary mb-3" id="addUserInterview">Добавить</button>
+                    <table class="table table-bordered" id="interviewsTable">
+                        <thead>
+                        <tr>
+                            <th>Организация</th>
+                            <th>Грейд</th>
+                            <th>Ссылка на вакансию</th>
+                            <th>Контакт</th>
+                            <th>Проект</th>
+                            <th>Дата</th>
+                            <th>Желаемая ЗП</th>
+                            <th>Оффер</th>
+                            <th>Комментарии</th>
+                            <th>Статус</th>
+                            <th>Действия</th>
+                        </tr>
+                        </thead>
+                        <tbody><!-- Сюда вставится JS --></tbody>
+                    </table>
                 </div>
             </div>
         </main>
@@ -118,7 +112,8 @@
                     <a class="nav-link" id="addUser-tab" data-bs-toggle="tab" href="#addUser">Добавить пользователя</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="interviews-tab" data-bs-toggle="tab" href="#interviewsAll">Собеседования</a>
+                    <a class="nav-link" id="interviews-tab" data-bs-toggle="tab" href="#interviewsAll">Все
+                        собеседования</a>
                 </li>
             </ul>
 
@@ -180,9 +175,9 @@
                         </div>
                     </div>
                 </div>
+
                 <!--Вкладка собесы-->
                 <div class="tab-pane fade" id="interviewsAll">
-                    <h3>Собеседования</h3>
                     <button class="btn btn-primary mb-3" id="addInterview">Добавить</button>
                     <table class="table table-bordered">
                         <thead>
@@ -192,9 +187,11 @@
                             <th>Ссылка на вакансию</th>
                             <th>Контакт</th>
                             <th>Проект</th>
-                            <th>Рекрутер</th>
                             <th>Дата</th>
+                            <th>Желаемая ЗП</th>
+                            <th>Оффер</th>
                             <th>Комментарии</th>
+                            <th>Статус</th>
                             <th>Действия</th>
                         </tr>
                         </thead>
@@ -206,7 +203,7 @@
     </div>
 </div>
 
-<!--Modal Delete пользователя-->
+<!--Modal: Delete пользователя-->
 <div class="modal fade" id="modelDelete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
      aria-labelledby="modelDeleteLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -247,7 +244,7 @@
     </div>
 </div>
 
-<!--Modal Edit пользователя-->
+<!--Modal: Edit пользователя-->
 <div class="modal fade" id="modelEdit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
      aria-labelledby="modelEditLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -295,8 +292,9 @@
     </div>
 </div>
 
-<!--Modal Add Interview (User/Admin)-->
-<div class="modal fade" id="addInterviewModal" tabindex="-1" aria-labelledby="addInterviewModalLabel" aria-hidden="true">
+<!--Modal: Add Interview (User/Admin)-->
+<div class="modal fade" id="addInterviewModal" tabindex="-1" aria-labelledby="addInterviewModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -306,18 +304,22 @@
             <div class="modal-body">
                 <form id="addInterviewForm">
                     <div class="row mb-2">
-                        <div class="col"><input name="organization" placeholder="Организация" class="form-control" required></div>
+                        <div class="col"><input name="organization" placeholder="Организация" class="form-control"
+                                                required></div>
                         <div class="col"><input name="grade" placeholder="Грейд" class="form-control"></div>
-                        <div class="col"><input name="jobLink" placeholder="Ссылка на вакансию" class="form-control" type="url"></div>
+                        <div class="col"><input name="jobLink" placeholder="Ссылка на вакансию" class="form-control"
+                                                type="url"></div>
                     </div>
                     <div class="row mb-2">
                         <div class="col"><input name="contact" placeholder="Контакт" class="form-control"></div>
                         <div class="col"><input name="project" placeholder="Проект" class="form-control"></div>
-                        <div class="col"><input name="recruiter" placeholder="Рекрутер" class="form-control"></div>
+                        <div class="col"><input name="salaryOffer" placeholder="Назвал сумму от" class="form-control">
+                        </div>
                     </div>
                     <div class="row mb-2">
-                        <div class="col"><input name="interviewDate" placeholder="Дата" class="form-control" type="datetime-local"></div>
-                        <div class="col"><input name="comment" placeholder="Комментарий" class="form-control"></div>
+                        <div class="col"><input name="interviewDate" id="interviewDataTime" placeholder="Дата"
+                                                class="form-control" type="datetime-local"></div>
+                        <div class="col"><input name="comments" placeholder="Комментарий" class="form-control"></div>
                     </div>
                 </form>
             </div>
@@ -328,6 +330,103 @@
         </div>
     </div>
 </div>
+
+<!-- Modal: Редактировать собеседование -->
+<div class="modal fade" id="editInterviewModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <form id="editInterviewForm" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактировать собеседование</h5>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editInterviewId">
+                <input type="text" class="form-control mb-2" id="editOrganization" placeholder="Организация">
+                <input type="text" class="form-control mb-2" id="editGrade" placeholder="Грейд">
+                <input type="url" class="form-control mb-2" id="editJobLink" placeholder="Ссылка">
+                <input type="text" class="form-control mb-2" id="editContact" placeholder="Контакт">
+                <input type="text" class="form-control mb-2" id="editProject" placeholder="Проект">
+                <input type="datetime-local" class="form-control mb-2" id="editDate">
+                <input type="text" class="form-control mb-2" id="editSalaryOffer" placeholder="Названа желаемая ЗП">
+                <input type="text" class="form-control mb-2" id="editComments" placeholder="Комментарий">
+
+<!--                Не редактируемые поля-->
+                <input type="hidden" id="editStatus">
+                <input type="hidden" id="editFinalOffer">
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--Modal: Delete собеседования-->
+<div class="modal fade" id="deleteInterviewModel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="modelDeleteInterview" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteInterviewModalLabel">Подтверждение удаления</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить собеседование?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" id="confirmDeleteButtonInterview" class="btn btn-danger">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal: собеседование пройдено-->
+<div class="modal fade" id="passedInterviewModal" tabindex="-1" aria-labelledby="passedInterviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="passedInterviewForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="passedInterviewModalLabel">Закрыть собеседование</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input class="form-control" id="interviewNotes" name="interviewNotes"
+                                  placeholder="О чем говорили на собеседовании?">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: получен оффер -->
+<div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="offerForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="offerModalLabel">Оффер</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="number" class="form-control" id="offerAmount" name="offerAmount" placeholder="Введите сумму оффера">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

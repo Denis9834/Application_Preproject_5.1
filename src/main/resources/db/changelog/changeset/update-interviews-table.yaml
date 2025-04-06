@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: update-interviews-table
+      author: Denis9834
+      changes:
+        - dropColumn:
+            columnName: recruiter
+            tableName: interviews
+        - addColumn:
+            tableName: interviews
+            columns:
+              - column:
+                  name: salary_offer
+                  type: numeric(10)
+              - column:
+                  name: status
+                  type: varchar (50)
+                  defaultValue: SCHEDULED
+                  constraints:
+                    nullable: false
+              - column:
+                  name: interview_notes
+                  type: text
+              - column:
+                  name: final_offer
+                  type: numeric(10)

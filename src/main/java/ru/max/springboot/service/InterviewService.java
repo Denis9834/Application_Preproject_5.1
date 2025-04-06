@@ -1,45 +1,25 @@
 package ru.max.springboot.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import ru.max.springboot.dto.InterviewDTO;
+import ru.max.springboot.dto.InterviewResponseDTO;
 import ru.max.springboot.model.Interview;
 import ru.max.springboot.model.User;
-import ru.max.springboot.repository.InterviewRepository;
-import ru.max.springboot.repository.UserRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
-@Service
-public class InterviewService {
+public interface InterviewService {
+    List<InterviewResponseDTO> getInterviewByUser(User user);
 
-    private final InterviewRepository interviewRepository;
-    private final UserRepository userRepository;
+    Interview createInterview(InterviewDTO dto, User user);
 
-    @Autowired
-    public InterviewService(InterviewRepository interviewRepository, UserRepository userRepository) {
-        this.interviewRepository = interviewRepository;
-        this.userRepository = userRepository;
-    }
+    Interview updateInterview(Long id, InterviewDTO dto, User user);
 
-    //Получение собеседований для пользователя
-    public List<Interview> getInterviewByUser(User user) {
-        return interviewRepository.findByUser(user);
-    }
+    Interview getByIdAndUser(Long id, User user);
 
-    //Создание нового собеседования
-    public Interview createInterview(InterviewDTO dto, User user) {
-        Interview interview = new Interview();
-        interview.setOrganization(dto.getOrganization());
-        interview.setGrade(dto.getGrade());
-        interview.setJobLink(dto.getJobLink());
-        interview.setContact(dto.getContact());
-        interview.setProject(dto.getProject());
-        interview.setRecruiter(dto.getRecruiter());
-        interview.setComments(dto.getComments());
-        interview.setDataTime(dto.getDataTime());
-        interview.setUser(user);
-        return interviewRepository.save(interview);
-    }
+    void deleteInterview(Long id, User user);
 
+    void updateStatusToPassed(Long id, String notes);
+
+    void updateStatusToOffered(Long id, BigDecimal offer);
 }

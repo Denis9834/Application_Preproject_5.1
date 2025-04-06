@@ -12,13 +12,6 @@ databaseChangeLog:
   - changeSet:
       id: insert-role-user
       author: Denis9834
-#      preConditions:
-#        - onFail: MARK_RAN
-#        - onFailMessage: "'ROLE_USER' уже существует"
-#        - not:
-#            - sqlCheck:
-#                expectedResult: "0"
-#                sql: SELECT COUNT(*) FROM roles WHERE role = 'ROLE_USER'
       changes:
         - insert:
             tableName: roles
