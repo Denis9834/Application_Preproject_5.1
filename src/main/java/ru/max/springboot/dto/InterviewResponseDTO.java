@@ -20,6 +20,8 @@ public class InterviewResponseDTO {
     private InterviewStatus status;
     private String interviewNotes;
     private BigDecimal finalOffer;
+    private Long userId;
+    private String userName;
 
     public String getStatusLabel() {
         return status != null ? status.getLabel() : null;

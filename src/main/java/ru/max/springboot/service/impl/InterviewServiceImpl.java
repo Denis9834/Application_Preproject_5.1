@@ -35,6 +35,14 @@ public class InterviewServiceImpl implements InterviewService {
                 .collect(Collectors.toList());
     }
 
+    //Получение всех собеседований у Admin
+    public List<InterviewResponseDTO> getAllInterviews() {
+        return interviewRepository.findAll()
+                .stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
     //Создание нового собеседования
     @Override
     public Interview createInterview(InterviewDTO dto, User user) {
@@ -69,21 +77,13 @@ public class InterviewServiceImpl implements InterviewService {
         interview.setFinalOffer(dto.getFinalOffer());
         interview.setInterviewNotes(dto.getInterviewNotes());
         interview.setStatus(dto.getStatus());
-        System.out.println("InterviewDTO: " + dto);
-        System.out.println("SAVE INTERVIEW: " + interview);
         return interviewRepository.save(interview);
-
     }
 
     // получение собеседования по id
     @Override
     public Interview getByIdAndUser(Long id, User user) {
-        Interview interview = interviewRepository.findById(id).orElse(null);
-
-//        if (!interview.getUser().getId().equals(user.getId())) {
-//            throw new RuntimeException("У пользователя нет доступа к этому собеседованию");
-//        }
-        return interview;
+        return interviewRepository.findById(id).orElse(null);
     }
 
     //Удаление собеседования
@@ -108,7 +108,7 @@ public class InterviewServiceImpl implements InterviewService {
     @Override
     public void updateStatusToOffered(Long id, BigDecimal offer) {
         Interview interview = interviewRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Собеседование не найдено"));
+                .orElseThrow(() -> new RuntimeException("Собеседование не найдено"));
 
         interview.setStatus(InterviewStatus.OFFERED);
         interview.setFinalOffer(offer);
@@ -131,10 +131,8 @@ public class InterviewServiceImpl implements InterviewService {
         dto.setStatus(interview.getStatus());
         dto.setInterviewNotes(interview.getInterviewNotes());
         dto.setFinalOffer(interview.getFinalOffer());
+        dto.setUserId(interview.getUser().getId());
+        dto.setUserName(interview.getUser().getName());
         return dto;
     }
-
-    //
-
-
 }

@@ -81,4 +81,10 @@ public class InterviewRestController {
         interviewServiceImpl.updateStatusToOffered(id, offer);
         return ResponseEntity.ok("Оффер добавлен");
     }
+
+    // Все собеседования для Admin
+    @GetMapping("/all")
+    public ResponseEntity<List<InterviewResponseDTO>> getAllInterviews() {
+        return ResponseEntity.ok(interviewServiceImpl.getAllInterviews());
+    }
 }

@@ -31,7 +31,8 @@ public class UserServiceImpl implements UserService {
     private final RoleServiceImpl roleService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, RoleServiceImpl roleService) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
+                           RoleServiceImpl roleService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -168,15 +169,17 @@ public class UserServiceImpl implements UserService {
         return userToBeUpdated;
     }
 
+    //Авторизация пользователя name/email
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Optional<User> user = userRepository.findByEmail(username);
+        Optional<User> userAuth = userRepository.findByEmail(username);
 
-        if (user.isEmpty()) {
-            throw new UsernameNotFoundException("Пользователь не найден: " + username);
+        if (userAuth.isEmpty()) {
+            userAuth = userRepository.findByName(username);
         }
-        return user.get();
+        return userAuth.orElseThrow(() ->
+                new UsernameNotFoundException("Пользователь не найден: " + username));
     }
 }
