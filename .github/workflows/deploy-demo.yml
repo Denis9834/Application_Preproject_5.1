@@ -36,8 +36,8 @@ jobs:
           username: artur
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
-            docker-compose-demo.yml
-            .env.demo
+            Application_Preproject_5.1/docker-compose-demo.yml
+            Application_Preproject_5.1/.env.demo
           target: "/home/artur/myProject"
 
       - name: Deploy demo application
