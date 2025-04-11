@@ -18,26 +18,21 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      
+
       - name: Build and push Docker Hub
         run: |
           docker build -t denis9834/application_5:demo .
           docker push denis9834/application_5:demo
 
-      - name: Проверка .env.demo
-        run: |
-          echo "Содержимое .env.demo:"
-          cat .env.demo || echo "Файл не найден"
-
-      - name: Copy docker-compose-demo.yml and .env.demo to server
+      - name: Copy docker-compose-demo.yml and .env to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: 194.87.99.49
           username: artur
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
-            Application_Preproject_5.1/docker-compose-demo.yml
-            Application_Preproject_5.1/.env.demo
+            docker-compose-demo.yml
+            .env
           target: "/home/artur/myProject"
 
       - name: Deploy demo application
