@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: insert-role-admin
+      id: insert-role-admin-110425-001
       author: Denis9834
       changes:
         - insert:
@@ -10,7 +10,7 @@ databaseChangeLog:
                   name: role
                   value: "ROLE_ADMIN"
   - changeSet:
-      id: insert-role-user
+      id: insert-role-user-110425-002
       author: Denis9834
       changes:
         - insert:

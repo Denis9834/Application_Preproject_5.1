@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: create-interviews
+      id: create-interviews-110425
       author: Denis9834
       changes:
         - createTable:

@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: insert-users
+      id: insert-users-110425
       author: Denis9834
       changes:
         - insert:

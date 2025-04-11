@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: update-interviews-table
+      id: update-interviews-table-110425
       author: Denis9834
       changes:
         - dropColumn:

@@ -24,13 +24,15 @@ jobs:
           docker build -t denis9834/application_5:demo .
           docker push denis9834/application_5:demo
 
-      - name: Copy docker-compose-demo.yml to server
+      - name: Copy docker-compose-demo.yml and .env.demo to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: 194.87.99.49
           username: artur
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose-demo.yml"
+          source: |
+            docker-compose-demo.yml
+            .env.demo
           target: "/home/artur/myProject"
 
       - name: Deploy demo application
