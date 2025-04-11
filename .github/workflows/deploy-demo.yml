@@ -24,6 +24,11 @@ jobs:
           docker build -t denis9834/application_5:demo .
           docker push denis9834/application_5:demo
 
+      - name: Проверка .env.demo
+        run: |
+          echo "Содержимое .env.demo:"
+          cat .env.demo || echo "Файл не найден"
+
       - name: Copy docker-compose-demo.yml and .env.demo to server
         uses: appleboy/scp-action@v0.1.7
         with:
