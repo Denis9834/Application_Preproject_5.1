@@ -32,7 +32,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
             docker-compose.yml
-            .env.prod"
+            .env.prod
           target: "/home/artur/myProject"
 
       - name: Deploy application
