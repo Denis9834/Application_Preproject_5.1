@@ -22,8 +22,8 @@ services:
     ports:
       - "61950:8080"
     depends_on:
-      - database
+      - database-demo
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${DB_NAME}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database-demo:5432/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
