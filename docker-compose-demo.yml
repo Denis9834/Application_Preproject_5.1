@@ -2,7 +2,7 @@ volumes:
   pg_demoJava:
 
 services:
-  database:
+  database-demo:
     image: postgres
     restart: always
     env_file:
