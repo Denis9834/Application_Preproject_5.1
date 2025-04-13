@@ -30,9 +30,10 @@ jobs:
           host: 194.87.99.49
           username: artur
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: |
+          source:
+#          |
             docker-compose.yml
-            .env.prod
+#            .env.prod
           target: "/home/artur/myProject"
 
       - name: Deploy application
