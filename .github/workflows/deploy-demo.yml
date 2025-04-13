@@ -24,15 +24,6 @@ jobs:
           docker build -t denis9834/application_5:demo .
           docker push denis9834/application_5:demo
 
-      - name: List files in workspace
-        run: ls -la
-
-      - name: Show docker-compose-demo.yml content
-        run: cat docker-compose-demo.yml
-
-      - name: Show .env.demo content
-        run: cat .env.demo
-
       - name: Copy docker-compose-demo.yml and .env.demo to server
         uses: appleboy/scp-action@v0.1.7
         with:
