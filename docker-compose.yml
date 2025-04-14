@@ -20,7 +20,7 @@ services:
     restart: always
     image: denis9834/application_5:latest
     ports:
-      - "80:8080"
+      - "8080:8080"
     depends_on:
       - database
     environment:
