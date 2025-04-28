@@ -22,4 +22,8 @@ public interface InterviewService {
     void updateStatusToPassed(Long id, String notes);
 
     void updateStatusToOffered(Long id, BigDecimal offer);
+
+    List<InterviewResponseDTO> searchFuzzyAllByOrganization(String term);
+
+    List<InterviewResponseDTO> searchFuzzyByUserAllByOrganization(String term, User user);
 }

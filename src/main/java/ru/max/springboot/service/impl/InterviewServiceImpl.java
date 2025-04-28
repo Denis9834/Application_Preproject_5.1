@@ -11,6 +11,7 @@ import ru.max.springboot.model.User;
 import ru.max.springboot.repository.InterviewRepository;
 import ru.max.springboot.repository.UserRepository;
 import ru.max.springboot.service.InterviewService;
+import ru.max.springboot.util.Transliteration;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -49,6 +50,7 @@ public class InterviewServiceImpl implements InterviewService {
         Interview interview = new Interview();
 
         interview.setOrganization(dto.getOrganization());
+        interview.setOrganizationLatin(Transliteration.toLatin(dto.getOrganization()));
         interview.setGrade(dto.getGrade());
         interview.setJobLink(dto.getJobLink());
         interview.setContact(dto.getContact());
@@ -67,6 +69,7 @@ public class InterviewServiceImpl implements InterviewService {
         Interview interview = getByIdAndUser(id, user);
 
         interview.setOrganization(dto.getOrganization());
+        interview.setOrganizationLatin(Transliteration.toLatin(dto.getOrganization()));
         interview.setGrade(dto.getGrade());
         interview.setJobLink(dto.getJobLink());
         interview.setContact(dto.getContact());
@@ -114,6 +117,26 @@ public class InterviewServiceImpl implements InterviewService {
         interview.setFinalOffer(offer);
         interviewRepository.save(interview);
 
+    }
+
+    //Неточный поиск у Admin
+    @Override
+    public List<InterviewResponseDTO> searchFuzzyAllByOrganization(String term) {
+        String ternLatin = Transliteration.toLatin(term);
+        return interviewRepository.searchFuzzyAllByOrganization(term, ternLatin)
+                .stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    //Неточный поиск у User
+    @Override
+    public List<InterviewResponseDTO> searchFuzzyByUserAllByOrganization(String term, User user) {
+        String termLatin = Transliteration.toLatin(term);
+        return interviewRepository.searchFuzzyByUserAllByOrganization(user.getId(), term, termLatin)
+                .stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     //Преобразование в InterviewResponseDTO

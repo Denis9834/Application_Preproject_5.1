@@ -27,15 +27,19 @@ public class SecurityConfig {
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/static/**", "/js/**", "/index").permitAll() // доступность всем
+                        .requestMatchers("/login", "/login.html", "/static/**", "/js/**"
+                                , "/api/auth/telegram"
+                        )
+                        .permitAll() // доступность всем
                         .anyRequest().authenticated()  // Spring сам подставит свою логин форму
                 )
                 .formLogin(login -> login
+                        .loginPage("/login")
                         .successHandler(successUserHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login")
+                        .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
                 .csrf(csrf -> csrf.disable());

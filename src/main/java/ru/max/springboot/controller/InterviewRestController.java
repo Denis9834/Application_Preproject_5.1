@@ -87,4 +87,17 @@ public class InterviewRestController {
     public ResponseEntity<List<InterviewResponseDTO>> getAllInterviews() {
         return ResponseEntity.ok(interviewServiceImpl.getAllInterviews());
     }
+
+    //search fuzzy Admin
+    @GetMapping("/all/search")
+    public ResponseEntity<List<InterviewResponseDTO>> searchAdmin(@RequestParam String term) {
+        return ResponseEntity.ok(interviewServiceImpl.searchFuzzyAllByOrganization(term));
+    }
+
+    //search fuzzy User
+    @GetMapping("/search")
+    public ResponseEntity<List<InterviewResponseDTO>> searchUser(@RequestParam String term,
+                                                                 @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(interviewServiceImpl.searchFuzzyByUserAllByOrganization(term, user));
+    }
 }

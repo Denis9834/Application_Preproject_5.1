@@ -13,7 +13,7 @@ spring:
       ddl-auto: none
 
 server:
-  port: 8080
+  port: 80
 
 logging:
   level:
@@ -21,3 +21,7 @@ logging:
       springframework:
         security: DEBUG
     liquibase: DEBUG
+
+telegram:
+  bot:
+    token: ${TELEGRAM_BOT_TOKEN}

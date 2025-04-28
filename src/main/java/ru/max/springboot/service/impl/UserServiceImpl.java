@@ -3,7 +3,6 @@ package ru.max.springboot.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -65,8 +64,8 @@ public class UserServiceImpl implements UserService {
     //Поиск пользователя по email
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     //Создание нового пользователя (по умолчанию с ролью User)
@@ -75,7 +74,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDTO createUser(UserDTO userDto) {
 
         //проверка на уникальность email
-        if (findByEmail(userDto.getEmail()).isPresent()) {
+        if (findByEmail(userDto.getEmail()) != null) {
             throw new RuntimeException("Пользователь с таким email уже существует");
         }
         //проверка на уникальность имени
@@ -129,6 +128,18 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    //поиск пользователя по его telegramId
+    @Override
+    public User findByTelegramId(Long telegramId) {
+
+        return userRepository.findByTelegramId(telegramId).orElse(null);
+    }
+
+    @Override
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
     //обновление пользователя
     @Override
     @Transactional
@@ -169,16 +180,13 @@ public class UserServiceImpl implements UserService {
         return userToBeUpdated;
     }
 
-    //Авторизация пользователя name/email
+    //Авторизация пользователя email
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Optional<User> userAuth = userRepository.findByEmail(username);
 
-        if (userAuth.isEmpty()) {
-            userAuth = userRepository.findByName(username);
-        }
         return userAuth.orElseThrow(() ->
                 new UsernameNotFoundException("Пользователь не найден: " + username));
     }

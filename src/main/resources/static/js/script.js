@@ -13,7 +13,7 @@ function loadUserInfo() {
         url: '/api/user',
         method: 'GET',
         success: function (data) {
-            $('#user-info-role').text(data.email + " с ролью " +
+            $('#user-info-role').text("Пользователь " + data.name + " с ролью " +
                 data.roles.map(r => r.role.replace("ROLE_", "")).join(' '));
         },
         error: function () {
@@ -252,6 +252,21 @@ function showMessage(type, message) {
             messageElement.text('');
         });
     }, 5000);
+}
+
+<!-- Обработчик Telegram -->
+function onTelegramAuth(user) {
+    fetch("/api/auth/telegram", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(user)
+    }).then(res => {
+        if (res.ok) {
+            window.location.href = "/index";
+        } else {
+            alert("Ошибка авторизации через Telegram");
+        }
+    });
 }
 
 // Кнопка выхода (Logout)
@@ -620,7 +635,7 @@ $('#offerForm').on('submit', function (e) {
 $(document).on('mouseenter', '.jobLinkPreview', function (e) {
     const url = $(this).attr('href');
     previewTimeout = setTimeout(() => {
-        $.get('/api/preview', { url: url }, function (data) {
+        $.get('/api/preview', {url: url}, function (data) {
             const previewHTML = `
                 <strong>${data.title || 'Заголовок отсутствует'}</strong><br>
                 ${data.image ? `<img src="${data.image}" alt="Картинка" style="width:100%; max-height:150px; object-fit:cover; margin:5px 0;">` : ''}
@@ -653,8 +668,223 @@ $(document).on('mouseenter', '.jobLinkPreview', function (e) {
         });
     }, 300);
 });
+
 //Обработчик скрытия окна предпросмотра ссылки
 $(document).on('mouseleave', '.jobLinkPreview', function () {
     clearTimeout(previewTimeout);
     $('#jobLinkPreviewBox').stop(true, true).fadeOut(200);
+});
+
+let userSearchTimeout;
+//Поиск у User
+// $('#searchBtn').on('click', function () {
+//     const term = $('#searchMyOrganization').val().trim();
+//     if (!term) {
+//         loadUserInterviews(); // сброс к полному списку
+//         return;
+//     }
+//     $.getJSON('/api/interviews/search', {term: term})
+//         .done(function (data) {
+//             const tbody = $('#interviewsTable tbody');
+//             tbody.empty();
+//             data.forEach(interview => {
+//                 const row = `
+//                <tr>
+//                  <td>${interview.organization}</td>
+//                         <td>${interview.grade}</td>
+//                         <td><a href="${interview.jobLink}" target="_blank"
+//                         class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover"
+//                                 style="--bs-link-hover-color-rgb: 25, 135, 84;"
+//                                 href="#">
+//                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+//                                     class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
+//                                     <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
+//                                     <use xlink:href="#arrow-right">
+//                                     </svg>
+//                                 Ссылка
+//                             </a>
+//                         </td>
+//                         <td>${interview.contact}</td>
+//                         <td>${interview.project}</td>
+//                         <td>${new Date(interview.dataTime).toLocaleString()}</td>
+//                         <td>${interview.salaryOffer}</td>
+//                         <td>${interview.finalOffer == null ? "-" : interview.finalOffer}</td>
+//                         <td>${interview.interviewNotes == null ? "-" : interview.interviewNotes}</td>
+//                         <td>${interview.comments}</td>
+//                         <td>${interview.statusLabel}</td>
+//
+//                         <td>
+//                             <button type="button" class="btn btn-info passed-interview-btn mb-2" data-id="${interview.id}">Прошел собеседование</button>
+//                             <button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>
+//                             <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
+//                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
+//                         </td>
+//                </tr>`;
+//                 tbody.append(row);
+//             });
+//         })
+//         .fail(() => showMessage('error', 'Ошибка поиска'));
+// });
+$('#searchMyOrganization').on('input', function() {
+    clearTimeout(userSearchTimeout);
+    const term = $(this).val().trim();
+
+    userSearchTimeout = setTimeout(() => {
+        if (!term) {
+            loadUserInterviews();  // Если строка пустая — покажем всё
+        } else {
+            $.getJSON('/api/interviews/search', { term })
+                .done(function(data) {
+                    const tbody = $('#interviewsTable tbody');
+                    tbody.empty();
+                    data.forEach(interview => {
+                        const row = `
+                        <tr>
+                        <td>${interview.userId}</td>
+                        <td>${interview.userName}</td>
+                        <td>${interview.organization}</td>
+                        <td>${interview.grade}</td>
+                        <td><a href="${interview.jobLink}" target="_blank"
+                        class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover"
+                                style="--bs-link-hover-color-rgb: 25, 135, 84;"
+                                href="#">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
+                                    <use xlink:href="#arrow-right">
+                                    </svg>
+                                Ссылка
+                            </a>
+                        </td>
+                        <td>${interview.contact}</td>
+                        <td>${interview.project}</td>
+                        <td>${new Date(interview.dataTime).toLocaleString()}</td>
+                        <td>${interview.salaryOffer}</td>
+                        <td>${interview.finalOffer == null ? "-" : interview.finalOffer}</td>
+                        <td>${interview.interviewNotes == null ? "-" : interview.interviewNotes}</td>
+                        <td>${interview.comments}</td>
+                        <td>${interview.statusLabel}</td>
+
+                        <td>
+                            <button type="button" class="btn btn-info passed-interview-btn mb-2" data-id="${interview.id}">Прошел собеседование</button>
+                            <button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>
+                            <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
+                            <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
+                        </td>
+                        </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                })
+                .fail(() => showMessage('error', 'Ошибка поиска'));
+        }
+    }, 300); // 300 мс задержки после последнего нажатия
+});
+
+let adminSearchTimeout;
+//Поиск у Admin
+// $('#searchAllBtn').on('click', function () {
+//     const term = $('#searchAllOrganization').val().trim();
+//     if (!term) {
+//         loadAllInterviews(); // сброс к полному списку
+//         return;
+//     }
+//     $.getJSON('/api/interviews/all/search', {term: term})
+//         .done(function (data) {
+//             const tbody = $('#interviewsAll tbody');
+//             tbody.empty();
+//             data.forEach(interview => {
+//                 const row = `
+//                <tr>
+//                  <td>${interview.userId}</td>
+//                         <td>${interview.userName}</td>
+//                         <td>${interview.organization}</td>
+//                         <td>${interview.grade}</td>
+//                         <td><a href="${interview.jobLink}" target="_blank"
+//                         class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover"
+//                                 style="--bs-link-hover-color-rgb: 25, 135, 84;"
+//                                 href="#">
+//                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+//                                     class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
+//                                     <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
+//                                     <use xlink:href="#arrow-right">
+//                                     </svg>
+//                                 Ссылка
+//                             </a>
+//                         </td>
+//                         <td>${interview.contact}</td>
+//                         <td>${interview.project}</td>
+//                         <td>${new Date(interview.dataTime).toLocaleString()}</td>
+//                         <td>${interview.salaryOffer}</td>
+//                         <td>${interview.finalOffer == null ? "-" : interview.finalOffer}</td>
+//                         <td>${interview.interviewNotes == null ? "-" : interview.interviewNotes}</td>
+//                         <td>${interview.comments}</td>
+//                         <td>${interview.statusLabel}</td>
+//
+//                         <td>
+//                             <button type="button" class="btn btn-info passed-interview-btn mb-2" data-id="${interview.id}">Прошел собеседование</button>
+//                             <button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>
+//                             <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
+//                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
+//                         </td>
+//                </tr>`;
+//                 tbody.append(row);
+//             });
+//         })
+//         .fail(() => showMessage('error', 'Ошибка поиска (admin)'));
+// });
+$('#searchAllOrganization').on('input', function() {
+    clearTimeout(adminSearchTimeout);
+    const term = $(this).val().trim();
+
+    adminSearchTimeout = setTimeout(() => {
+        if (!term) {
+            loadAllInterviews();  // Если строка пустая — покажем всё
+        } else {
+            $.getJSON('/api/interviews/all/search', { term })
+                .done(function(data) {
+                    const tbody = $('#interviewsAll tbody');
+                    tbody.empty();
+                    data.forEach(interview => {
+                        const row = `
+                        <tr>
+                        <td>${interview.userId}</td>
+                        <td>${interview.userName}</td>
+                        <td>${interview.organization}</td>
+                        <td>${interview.grade}</td>
+                        <td><a href="${interview.jobLink}" target="_blank"
+                        class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover"
+                                style="--bs-link-hover-color-rgb: 25, 135, 84;"
+                                href="#">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
+                                    <use xlink:href="#arrow-right">
+                                    </svg>
+                                Ссылка
+                            </a>
+                        </td>
+                        <td>${interview.contact}</td>
+                        <td>${interview.project}</td>
+                        <td>${new Date(interview.dataTime).toLocaleString()}</td>
+                        <td>${interview.salaryOffer}</td>
+                        <td>${interview.finalOffer == null ? "-" : interview.finalOffer}</td>
+                        <td>${interview.interviewNotes == null ? "-" : interview.interviewNotes}</td>
+                        <td>${interview.comments}</td>
+                        <td>${interview.statusLabel}</td>
+
+                        <td>
+                            <button type="button" class="btn btn-info passed-interview-btn mb-2" data-id="${interview.id}">Прошел собеседование</button>
+                            <button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>
+                            <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
+                            <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
+                        </td>
+                        </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                })
+                .fail(() => showMessage('error', 'Ошибка поиска'));
+        }
+    }, 300); // 300 мс задержки после последнего нажатия
 });
