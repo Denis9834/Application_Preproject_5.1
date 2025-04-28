@@ -32,8 +32,8 @@ public class User implements UserDetails {
 
     @NotEmpty(message = "Поле не должно быть пустым")
     @Size(min = 2, max = 50, message = "Имя должно быть в диапазоне от 2 до 50 символов")
-    @Column(name = "name", unique = true)
-    private String name; // уникальное значение name
+    @Column(name = "name")
+    private String name;
 
     @NotEmpty(message = "Поле не должно быть пустым")
     @Email(message = "Email должен быть валидным")
@@ -60,6 +60,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Interview> interviews;
+
+    @Column(name = "telegram_id", unique = true)
+    private Long telegramId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

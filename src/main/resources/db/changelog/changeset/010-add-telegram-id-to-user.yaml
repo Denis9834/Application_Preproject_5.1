@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-telegram-id-column-160425
+      author: Denis9834
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: telegram_id
+                  type: bigint
+                  constraints:
+                    unique: true
+                    nullable: true

@@ -75,6 +75,13 @@
 
                 <!-- Вкладка: Мои собеседования -->
                 <div id="interviewsPanel" class="tab-pane fade">
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <input type="text" id="searchMyOrganization" class="form-control"
+                                   placeholder="Поиск по организации"
+                                   style="background-color: #f0f8ff; color: #333; border: 2px solid #4CAF50; border-radius: 8px;">
+                        </div>
+                    </div>
                     <button id="addUserInterview" class="btn btn-primary mb-3">Добавить</button>
                     <div style="max-height: 600px; overflow-y: auto;">
                         <table id="interviewsTable"
@@ -183,6 +190,13 @@
 
                 <!--Вкладка все собесы Admin-->
                 <div class="tab-pane fade" id="interviewsAll">
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <input type="text" id="searchAllOrganization" class="form-control"
+                                   placeholder="Поиск по организации"
+                                   style="background-color: #f0f8ff; color: #333; border: 2px solid #4CAF50; border-radius: 8px;">
+                        </div>
+                    </div>
                     <button class="btn btn-primary mb-3" id="addInterview">Добавить</button>
                     <div style="max-height: 600px; overflow-y: auto">
                         <table class="table table-bordered table-hover text-center align-middle w-100 mb-0"

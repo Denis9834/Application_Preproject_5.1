@@ -16,11 +16,15 @@ public interface UserService extends UserDetailsService {
 
     Optional<User> findByName(String name);
 
-    Optional<User> findByEmail(String email);
+    User findByEmail(String email);
 
     UserResponseDTO createUser(UserDTO userDto);
 
     User updateUser(Long id, UserDTO userDto);
 
     void deleteUser(Long id, User currentUser);
+
+    User findByTelegramId(Long telegramId);
+
+    User save(User user);
 }

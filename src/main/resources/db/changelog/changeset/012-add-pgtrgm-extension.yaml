@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-pgtrgm-extension-250425
+      author: Denis9834
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+  - changeSet:
+      id: create-trgm-gin-index-250425
+      author: Denis9834
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              CREATE INDEX IF NOT EXISTS idx_interviews_org_trgm
+                              ON interviews
+                              USING gin (lower(organization) gin_trgm_ops);

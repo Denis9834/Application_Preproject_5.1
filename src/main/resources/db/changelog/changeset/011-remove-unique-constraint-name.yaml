@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: remove-unique-constraint-name-240425
+      author: Denis9834
+      changes:
+        - dropUniqueConstraint:
+            constraintName: users_name_key
+            tableName: users

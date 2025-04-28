@@ -58,6 +58,9 @@ public class Interview {
     @Enumerated(EnumType.STRING)
     private InterviewStatus status = InterviewStatus.SCHEDULED;
 
+    @Column(name = "organization_latin")
+    private String organizationLatin;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

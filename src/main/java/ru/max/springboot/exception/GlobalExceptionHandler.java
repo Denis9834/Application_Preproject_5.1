@@ -1,4 +1,4 @@
-package ru.max.springboot.controller;
+package ru.max.springboot.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;

@@ -26,3 +26,5 @@ spec:
               value: "postgres"
             - name: SPRING_DATASOURCE_PASSWORD
               value: "postgre"
+            - name: TELEGRAM_BOT_TOKEN
+              value: "7998314464:AAHsVDpkOHB_7t-BDDIfB0iz5lDeZaFNg_0"
