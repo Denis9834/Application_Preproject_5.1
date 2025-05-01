@@ -1,6 +1,8 @@
 $(document).ready(function () {
     loadUsers();
+    if ($('#user-info-role').length) {
     loadUserInfo();
+    }
     loadCurrentUser();
     loadUserRolesSidebar();
     loadAllInterviews();

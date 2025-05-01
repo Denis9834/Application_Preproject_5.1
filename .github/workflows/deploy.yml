@@ -42,6 +42,10 @@ jobs:
           script: |
             cd /home/artur/myProject
             docker pull denis9834/application_5:latest
+            set -a
+            source .env.prod
+            set +a
             docker-compose -f /home/artur/myProject/docker-compose.yml down
+            docker-compose -f /home/artur/myProject/docker-compose-demo.yml down
             docker-compose -f /home/artur/myProject/docker-compose.yml up -d --build
             docker system prune -af
