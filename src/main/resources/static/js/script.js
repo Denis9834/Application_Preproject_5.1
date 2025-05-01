@@ -1,7 +1,7 @@
 $(document).ready(function () {
     loadUsers();
     if ($('#user-info-role').length) {
-    loadUserInfo();
+        loadUserInfo();
     }
     loadCurrentUser();
     loadUserRolesSidebar();
@@ -176,8 +176,11 @@ function loadAllInterviews() {
                         <td>${interview.statusLabel}</td>
                         
                         <td>
-                            <button type="button" class="btn btn-info passed-interview-btn mb-2" data-id="${interview.id}">Прошел собеседование</button>
-                            <button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>
+                            ${interview.status === 'SCHEDULED' ?
+                    `<button type="button" class="btn btn-info passed-interview-btn mb-2" 
+                            data-id="${interview.id}">Прошел собеседование</button>` : ''}
+                            ${interview.status === 'SCHEDULED' || interview.status === 'PASSED' ?
+                    `<button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>` : ""}
                             <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
                         </td>
@@ -228,8 +231,11 @@ function loadUserInterviews() {
                         <td>${interview.statusLabel}</td>
                         
                         <td>
-                            <button type="button" class="btn btn-info passed-interview-btn mb-2" data-id="${interview.id}">Прошел собеседование</button>
-                            <button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>
+                            ${interview.status === 'SCHEDULED' ?
+                    `<button type="button" class="btn btn-info passed-interview-btn mb-2" 
+                            data-id="${interview.id}">Прошел собеседование</button>` : ''}
+                            ${interview.status === 'SCHEDULED' || interview.status === 'PASSED' ?
+                    `<button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>` : ""}
                             <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
                         </td>
@@ -476,9 +482,7 @@ $('#addInterviewForm').on('submit', function (e) {
 });
 
 // Общие переменные для update interview (User\Admin)
-let currentFinalOffer = null;
 let currentStatus = null;
-let currentInterviewNotes = null;
 
 // Редактирование собеса (User\Admin)
 $(document).on('click', '.edit-user-interview', function () {
@@ -495,10 +499,10 @@ $(document).on('click', '.edit-user-interview', function () {
             $('#editProject').val(interview.project);
             $('#editDate').val(interview.dataTime.slice(0, 16));
             $('#editSalaryOffer').val(interview.salaryOffer);
+            $('#editFinalOffer').val(interview.finalOffer);
             $('#editComments').val(interview.comments);
-            currentFinalOffer = interview.finalOffer;
+            $('#editInterviewNotes').val(interview.interviewNotes);
             currentStatus = interview.status;
-            currentInterviewNotes = interview.interviewNotes;
             $('#editInterviewModal').modal('show');
         },
 
@@ -520,10 +524,10 @@ $('#editInterviewForm').on('submit', function (e) {
         project: $('#editProject').val(),
         dataTime: $('#editDate').val(),
         salaryOffer: $('#editSalaryOffer').val(),
+        finalOffer: $('#editFinalOffer').val(),
         comments: $('#editComments').val(),
-        finalOffer: currentFinalOffer,
-        status: currentStatus,
-        interviewNotes: currentInterviewNotes
+        interviewNotes: $('#editInterviewNotes').val(),
+        status: currentStatus
     };
 
     $.ajax({
@@ -581,6 +585,7 @@ $('#confirmDeleteButtonInterview').on('click', function () {
 $(document).on('click', '.passed-interview-btn', function () {
     var interviewId = $(this).data('id');
     $('#passedInterviewForm').data('interviewId', interviewId);
+    $('#interviewNotes').val('');
     $('#passedInterviewModal').modal('show');
 });
 
@@ -609,6 +614,7 @@ $('#passedInterviewForm').on('submit', function (e) {
 $(document).on('click', '.offer-received-btn', function () {
     var interviewId = $(this).data('id');
     $('#offerForm').data('interviewId', interviewId);
+    $('offerAmount').val('');
     $('#offerModal').modal('show');
 });
 
@@ -679,55 +685,7 @@ $(document).on('mouseleave', '.jobLinkPreview', function () {
 
 let userSearchTimeout;
 //Поиск у User
-// $('#searchBtn').on('click', function () {
-//     const term = $('#searchMyOrganization').val().trim();
-//     if (!term) {
-//         loadUserInterviews(); // сброс к полному списку
-//         return;
-//     }
-//     $.getJSON('/api/interviews/search', {term: term})
-//         .done(function (data) {
-//             const tbody = $('#interviewsTable tbody');
-//             tbody.empty();
-//             data.forEach(interview => {
-//                 const row = `
-//                <tr>
-//                  <td>${interview.organization}</td>
-//                         <td>${interview.grade}</td>
-//                         <td><a href="${interview.jobLink}" target="_blank"
-//                         class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover"
-//                                 style="--bs-link-hover-color-rgb: 25, 135, 84;"
-//                                 href="#">
-//                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-//                                     class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
-//                                     <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
-//                                     <use xlink:href="#arrow-right">
-//                                     </svg>
-//                                 Ссылка
-//                             </a>
-//                         </td>
-//                         <td>${interview.contact}</td>
-//                         <td>${interview.project}</td>
-//                         <td>${new Date(interview.dataTime).toLocaleString()}</td>
-//                         <td>${interview.salaryOffer}</td>
-//                         <td>${interview.finalOffer == null ? "-" : interview.finalOffer}</td>
-//                         <td>${interview.interviewNotes == null ? "-" : interview.interviewNotes}</td>
-//                         <td>${interview.comments}</td>
-//                         <td>${interview.statusLabel}</td>
-//
-//                         <td>
-//                             <button type="button" class="btn btn-info passed-interview-btn mb-2" data-id="${interview.id}">Прошел собеседование</button>
-//                             <button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>
-//                             <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
-//                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
-//                         </td>
-//                </tr>`;
-//                 tbody.append(row);
-//             });
-//         })
-//         .fail(() => showMessage('error', 'Ошибка поиска'));
-// });
-$('#searchMyOrganization').on('input', function() {
+$('#searchMyOrganization').on('input', function () {
     clearTimeout(userSearchTimeout);
     const term = $(this).val().trim();
 
@@ -735,8 +693,8 @@ $('#searchMyOrganization').on('input', function() {
         if (!term) {
             loadUserInterviews();  // Если строка пустая — покажем всё
         } else {
-            $.getJSON('/api/interviews/search', { term })
-                .done(function(data) {
+            $.getJSON('/api/interviews/search', {term})
+                .done(function (data) {
                     const tbody = $('#interviewsTable tbody');
                     tbody.empty();
                     data.forEach(interview => {
@@ -768,8 +726,11 @@ $('#searchMyOrganization').on('input', function() {
                         <td>${interview.statusLabel}</td>
 
                         <td>
-                            <button type="button" class="btn btn-info passed-interview-btn mb-2" data-id="${interview.id}">Прошел собеседование</button>
-                            <button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>
+                            ${interview.status === 'SCHEDULED' ?
+                            `<button type="button" class="btn btn-info passed-interview-btn mb-2" 
+                            data-id="${interview.id}">Прошел собеседование</button>` : ''}
+                            ${interview.status === 'SCHEDULED' || interview.status === 'PASSED' ?
+                            `<button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>` : ""}
                             <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
                         </td>
@@ -785,57 +746,7 @@ $('#searchMyOrganization').on('input', function() {
 
 let adminSearchTimeout;
 //Поиск у Admin
-// $('#searchAllBtn').on('click', function () {
-//     const term = $('#searchAllOrganization').val().trim();
-//     if (!term) {
-//         loadAllInterviews(); // сброс к полному списку
-//         return;
-//     }
-//     $.getJSON('/api/interviews/all/search', {term: term})
-//         .done(function (data) {
-//             const tbody = $('#interviewsAll tbody');
-//             tbody.empty();
-//             data.forEach(interview => {
-//                 const row = `
-//                <tr>
-//                  <td>${interview.userId}</td>
-//                         <td>${interview.userName}</td>
-//                         <td>${interview.organization}</td>
-//                         <td>${interview.grade}</td>
-//                         <td><a href="${interview.jobLink}" target="_blank"
-//                         class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover"
-//                                 style="--bs-link-hover-color-rgb: 25, 135, 84;"
-//                                 href="#">
-//                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-//                                     class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
-//                                     <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
-//                                     <use xlink:href="#arrow-right">
-//                                     </svg>
-//                                 Ссылка
-//                             </a>
-//                         </td>
-//                         <td>${interview.contact}</td>
-//                         <td>${interview.project}</td>
-//                         <td>${new Date(interview.dataTime).toLocaleString()}</td>
-//                         <td>${interview.salaryOffer}</td>
-//                         <td>${interview.finalOffer == null ? "-" : interview.finalOffer}</td>
-//                         <td>${interview.interviewNotes == null ? "-" : interview.interviewNotes}</td>
-//                         <td>${interview.comments}</td>
-//                         <td>${interview.statusLabel}</td>
-//
-//                         <td>
-//                             <button type="button" class="btn btn-info passed-interview-btn mb-2" data-id="${interview.id}">Прошел собеседование</button>
-//                             <button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>
-//                             <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
-//                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
-//                         </td>
-//                </tr>`;
-//                 tbody.append(row);
-//             });
-//         })
-//         .fail(() => showMessage('error', 'Ошибка поиска (admin)'));
-// });
-$('#searchAllOrganization').on('input', function() {
+$('#searchAllOrganization').on('input', function () {
     clearTimeout(adminSearchTimeout);
     const term = $(this).val().trim();
 
@@ -843,8 +754,8 @@ $('#searchAllOrganization').on('input', function() {
         if (!term) {
             loadAllInterviews();  // Если строка пустая — покажем всё
         } else {
-            $.getJSON('/api/interviews/all/search', { term })
-                .done(function(data) {
+            $.getJSON('/api/interviews/all/search', {term})
+                .done(function (data) {
                     const tbody = $('#interviewsAll tbody');
                     tbody.empty();
                     data.forEach(interview => {
@@ -876,8 +787,11 @@ $('#searchAllOrganization').on('input', function() {
                         <td>${interview.statusLabel}</td>
 
                         <td>
-                            <button type="button" class="btn btn-info passed-interview-btn mb-2" data-id="${interview.id}">Прошел собеседование</button>
-                            <button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>
+                            ${interview.status === 'SCHEDULED' ?
+                            `<button type="button" class="btn btn-info passed-interview-btn mb-2" 
+                            data-id="${interview.id}">Прошел собеседование</button>` : ''}
+                            ${interview.status === 'SCHEDULED' || interview.status === 'PASSED' ?
+                            `<button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>` : ""}
                             <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
                         </td>
