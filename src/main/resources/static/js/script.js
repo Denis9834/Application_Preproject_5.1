@@ -151,28 +151,31 @@ function loadAllInterviews() {
                 const row = `
                 <tr>
                         <td>${interview.userId}</td>
-                        <td>${interview.userName}</td>
-                        <td>${interview.organization}</td>
+                        <td><span class="truncate-text" title="${interview.userName}">${interview.userName}</span></td>
+                        <td><span class="truncate-text" title="${interview.email}">${interview.email}</span></td>
+                        <td><span class="truncate-text" title="${interview.organization}">${interview.organization}</span></td>
                         <td>${interview.grade}</td>
-                        <td><a href="${interview.jobLink}" target="_blank" 
-                        class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover" 
-                                style="--bs-link-hover-color-rgb: 25, 135, 84;"
-                                href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" 
-                                    class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
-                                    <use xlink:href="#arrow-right">
+                        <td>
+                        <a href="${interview.jobLink}" target="_blank" 
+                            class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover" 
+                            style="--bs-link-hover-color-rgb: 25, 135, 84;">
+                            <svg xmlns="http://www.w3.org/2000/svg" 
+                            width="16" height="16" fill="currentColor" 
+                            class="bi bi-arrow-down-right-circle" 
+                            viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" 
+                                d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
                                     </svg>
                                 Ссылка                                    
                             </a>
                         </td>
-                        <td>${interview.contact}</td>
-                        <td>${interview.project}</td>
+                        <td><span class="truncate-text" title="${interview.contact}">${interview.contact}</span></td>
+                        <td><span class="truncate-text" title="${interview.project}">${interview.project}</span></td>
                         <td>${new Date(interview.dataTime).toLocaleString()}</td>
-                        <td>${interview.salaryOffer}</td>
-                        <td>${interview.finalOffer == null ? "-" : interview.finalOffer}</td>
-                        <td>${interview.interviewNotes == null ? "-" : interview.interviewNotes}</td>
-                        <td>${interview.comments}</td>
+                        <td><span class="truncate-text" title="${interview.salaryOffer}">${interview.salaryOffer}</span></td>
+                        <td><span class="truncate-text" title="${interview.finalOffer}">${interview.finalOffer == null ? "-" : interview.finalOffer}</span></td>
+                        <td><span class="truncate-text" title="${interview.interviewNotes}">${interview.interviewNotes == null ? "-" : interview.interviewNotes}</span></td>
+                        <td><span class="truncate-text" title="${interview.comments}">${interview.comments}</span></td>
                         <td>${interview.statusLabel}</td>
                         
                         <td>
@@ -207,27 +210,29 @@ function loadUserInterviews() {
             interviews.forEach(interview => {
                 const row = `
                     <tr>
-                        <td>${interview.organization}</td>
+                        <td><span class="truncate-text" title="${interview.organization}">${interview.organization}</span></td>
                         <td>${interview.grade}</td>
-                        <td><a href="${interview.jobLink}" target="_blank" 
-                        class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover" 
-                                style="--bs-link-hover-color-rgb: 25, 135, 84;"
-                                href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" 
-                                    class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
-                                    <use xlink:href="#arrow-right">
+                        <td>
+                        <a href="${interview.jobLink}" target="_blank" 
+                            class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover" 
+                            style="--bs-link-hover-color-rgb: 25, 135, 84;">
+                            <svg xmlns="http://www.w3.org/2000/svg" 
+                            width="16" height="16" fill="currentColor" 
+                            class="bi bi-arrow-down-right-circle" 
+                            viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" 
+                                d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
                                     </svg>
                                 Ссылка                                    
                             </a>
                         </td>
-                        <td>${interview.contact}</td>
-                        <td>${interview.project}</td>
+                        <td><span class="truncate-text" title="${interview.contact}">${interview.contact}</span></td>
+                        <td><span class="truncate-text" title="${interview.project}">${interview.project}</span></td>
                         <td>${new Date(interview.dataTime).toLocaleString()}</td>
-                        <td>${interview.salaryOffer}</td>
-                        <td>${interview.finalOffer == null ? "-" : interview.finalOffer}</td>
-                        <td>${interview.interviewNotes == null ? "-" : interview.interviewNotes}</td>
-                        <td>${interview.comments}</td>
+                        <td><span class="truncate-text" title="${interview.salaryOffer}">${interview.salaryOffer}</span></td>
+                        <td><span class="truncate-text" title="${interview.finalOffer}">${interview.finalOffer == null ? "-" : interview.finalOffer}</span></td>
+                        <td><span class="truncate-text" title="${interview.interviewNotes}">${interview.interviewNotes == null ? "-" : interview.interviewNotes}</span></td>
+                        <td><span class="truncate-text" title="${interview.comments}">${interview.comments}</span></td>
                         <td>${interview.statusLabel}</td>
                         
                         <td>
@@ -499,10 +504,10 @@ $(document).on('click', '.edit-user-interview', function () {
             $('#editProject').val(interview.project);
             $('#editDate').val(interview.dataTime.slice(0, 16));
             $('#editSalaryOffer').val(interview.salaryOffer);
-            $('#editFinalOffer').val(interview.finalOffer);
             $('#editComments').val(interview.comments);
-            $('#editInterviewNotes').val(interview.interviewNotes);
             currentStatus = interview.status;
+            $('#editFinalOffer').prop('disabled', currentStatus !== 'OFFERED');
+            $('#editInterviewNotes').prop('disabled',currentStatus !== 'PASSED' && currentStatus !== 'OFFERED');
             $('#editInterviewModal').modal('show');
         },
 
@@ -700,31 +705,31 @@ $('#searchMyOrganization').on('input', function () {
                     data.forEach(interview => {
                         const row = `
                         <tr>
-                        <td>${interview.userId}</td>
-                        <td>${interview.userName}</td>
-                        <td>${interview.organization}</td>
+                        <td><span class="truncate-text" title="${interview.organization}">${interview.organization}</span></td>
                         <td>${interview.grade}</td>
-                        <td><a href="${interview.jobLink}" target="_blank"
-                        class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover"
-                                style="--bs-link-hover-color-rgb: 25, 135, 84;"
-                                href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
-                                    <use xlink:href="#arrow-right">
+                        <td>
+                        <a href="${interview.jobLink}" target="_blank" 
+                            class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover" 
+                            style="--bs-link-hover-color-rgb: 25, 135, 84;">
+                            <svg xmlns="http://www.w3.org/2000/svg" 
+                            width="16" height="16" fill="currentColor" 
+                            class="bi bi-arrow-down-right-circle" 
+                            viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" 
+                                d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
                                     </svg>
-                                Ссылка
+                                Ссылка                                    
                             </a>
                         </td>
-                        <td>${interview.contact}</td>
-                        <td>${interview.project}</td>
+                        <td><span class="truncate-text" title="${interview.contact}">${interview.contact}</span></td>
+                        <td><span class="truncate-text" title="${interview.project}">${interview.project}</span></td>
                         <td>${new Date(interview.dataTime).toLocaleString()}</td>
-                        <td>${interview.salaryOffer}</td>
-                        <td>${interview.finalOffer == null ? "-" : interview.finalOffer}</td>
-                        <td>${interview.interviewNotes == null ? "-" : interview.interviewNotes}</td>
-                        <td>${interview.comments}</td>
+                        <td><span class="truncate-text" title="${interview.salaryOffer}">${interview.salaryOffer}</span></td>
+                        <td><span class="truncate-text" title="${interview.finalOffer}">${interview.finalOffer == null ? "-" : interview.finalOffer}</span></td>
+                        <td><span class="truncate-text" title="${interview.interviewNotes}">${interview.interviewNotes == null ? "-" : interview.interviewNotes}</span></td>
+                        <td><span class="truncate-text" title="${interview.comments}">${interview.comments}</span></td>
                         <td>${interview.statusLabel}</td>
-
+                        
                         <td>
                             ${interview.status === 'SCHEDULED' ?
                             `<button type="button" class="btn btn-info passed-interview-btn mb-2" 
@@ -734,7 +739,7 @@ $('#searchMyOrganization').on('input', function () {
                             <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
                         </td>
-                        </tr>
+                    </tr>
                         `;
                         tbody.append(row);
                     });
@@ -762,30 +767,33 @@ $('#searchAllOrganization').on('input', function () {
                         const row = `
                         <tr>
                         <td>${interview.userId}</td>
-                        <td>${interview.userName}</td>
-                        <td>${interview.organization}</td>
+                        <td><span class="truncate-text" title="${interview.userName}">${interview.userName}</span></td>
+                        <td><span class="truncate-text" title="${interview.email}">${interview.email}</span></td>
+                        <td><span class="truncate-text" title="${interview.organization}">${interview.organization}</span></td>
                         <td>${interview.grade}</td>
-                        <td><a href="${interview.jobLink}" target="_blank"
-                        class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover"
-                                style="--bs-link-hover-color-rgb: 25, 135, 84;"
-                                href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-arrow-down-right-circle" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
-                                    <use xlink:href="#arrow-right">
+                        <td>
+                        <a href="${interview.jobLink}" target="_blank" 
+                            class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover" 
+                            style="--bs-link-hover-color-rgb: 25, 135, 84;">
+                            <svg xmlns="http://www.w3.org/2000/svg" 
+                            width="16" height="16" fill="currentColor" 
+                            class="bi bi-arrow-down-right-circle" 
+                            viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" 
+                                d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
                                     </svg>
-                                Ссылка
+                                Ссылка                                    
                             </a>
                         </td>
-                        <td>${interview.contact}</td>
-                        <td>${interview.project}</td>
+                        <td><span class="truncate-text" title="${interview.contact}">${interview.contact}</span></td>
+                        <td><span class="truncate-text" title="${interview.project}">${interview.project}</span></td>
                         <td>${new Date(interview.dataTime).toLocaleString()}</td>
-                        <td>${interview.salaryOffer}</td>
-                        <td>${interview.finalOffer == null ? "-" : interview.finalOffer}</td>
-                        <td>${interview.interviewNotes == null ? "-" : interview.interviewNotes}</td>
-                        <td>${interview.comments}</td>
+                        <td><span class="truncate-text" title="${interview.salaryOffer}">${interview.salaryOffer}</span></td>
+                        <td><span class="truncate-text" title="${interview.finalOffer}">${interview.finalOffer == null ? "-" : interview.finalOffer}</span></td>
+                        <td><span class="truncate-text" title="${interview.interviewNotes}">${interview.interviewNotes == null ? "-" : interview.interviewNotes}</span></td>
+                        <td><span class="truncate-text" title="${interview.comments}">${interview.comments}</span></td>
                         <td>${interview.statusLabel}</td>
-
+                        
                         <td>
                             ${interview.status === 'SCHEDULED' ?
                             `<button type="button" class="btn btn-info passed-interview-btn mb-2" 
@@ -795,7 +803,7 @@ $('#searchAllOrganization').on('input', function () {
                             <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
                         </td>
-                        </tr>
+                    </tr>
                         `;
                         tbody.append(row);
                     });
@@ -803,4 +811,35 @@ $('#searchAllOrganization').on('input', function () {
                 .fail(() => showMessage('error', 'Ошибка поиска'));
         }
     }, 300); // 300 мс задержки после последнего нажатия
+});
+
+//Импорт данных из таблицы (открытие проводника)
+$(document).ready(function () {
+    $('#importInterviewBtn').on('click', function () {
+        $('#importFileInput').click();
+    });
+
+    $('#importFileInput').on('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        $.ajax({
+            url: '/api/admin/import',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function () {
+                showMessage('success', 'Импорт успешно завершен');
+                loadAllInterviews();
+                loadUsers();// Обновление таблицы
+            },
+            error: function () {
+                showMessage('error', 'Ошибка при импорте');
+            }
+        });
+    });
 });

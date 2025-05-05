@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: modify-interview-columns-040525
+      author: Denis9834
+      changes:
+        - modifyDataType:
+            tableName: interviews
+            columnName: project
+            newDataType: varchar(500)
+        - modifyDataType:
+            tableName: interviews
+            columnName: comments
+            newDataType: varchar(500)
+        - modifyDataType:
+            tableName: interviews
+            columnName: interview_notes
+            newDataType: varchar(1000)

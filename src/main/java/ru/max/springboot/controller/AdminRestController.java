@@ -7,12 +7,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.max.springboot.dto.UserDTO;
 import ru.max.springboot.dto.UserResponseDTO;
 import ru.max.springboot.model.User;
+import ru.max.springboot.service.impl.InterviewServiceImpl;
 import ru.max.springboot.service.impl.RoleServiceImpl;
 import ru.max.springboot.service.impl.UserServiceImpl;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -23,11 +26,13 @@ public class AdminRestController {
 
     private final UserServiceImpl userServiceImpl;
     private final RoleServiceImpl roleServiceImpl;
+    private final InterviewServiceImpl interviewServiceImpl;
 
     @Autowired
-    public AdminRestController(UserServiceImpl userServiceImpl, RoleServiceImpl roleServiceImpl) {
+    public AdminRestController(UserServiceImpl userServiceImpl, RoleServiceImpl roleServiceImpl, InterviewServiceImpl interviewServiceImpl) {
         this.userServiceImpl = userServiceImpl;
         this.roleServiceImpl = roleServiceImpl;
+        this.interviewServiceImpl = interviewServiceImpl;
     }
 
     //Список пользователей
@@ -69,6 +74,21 @@ public class AdminRestController {
             return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
+    }
+    @PostMapping("/import")
+    public ResponseEntity<?> importExcel(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("Файл не выбран");
+        }
+        try {
+            interviewServiceImpl.importFromExcel(file);
+            return ResponseEntity.ok("Импорт завершён успешно");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ошибка при чтении файла: " + e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

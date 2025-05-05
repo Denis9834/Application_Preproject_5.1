@@ -31,7 +31,7 @@ public class User implements UserDetails {
     private Long id;
 
     @NotEmpty(message = "Поле не должно быть пустым")
-    @Size(min = 2, max = 50, message = "Имя должно быть в диапазоне от 2 до 50 символов")
+//    @Size(min = 2, max = 50, message = "Имя должно быть в диапазоне от 2 до 50 символов")
     @Column(name = "name")
     private String name;
 

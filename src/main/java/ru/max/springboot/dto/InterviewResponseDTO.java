@@ -22,6 +22,7 @@ public class InterviewResponseDTO {
     private BigDecimal finalOffer;
     private Long userId;
     private String userName;
+    private String email;
 
     public String getStatusLabel() {
         return status != null ? status.getLabel() : null;

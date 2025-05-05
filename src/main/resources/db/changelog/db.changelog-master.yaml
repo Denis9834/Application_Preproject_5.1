@@ -25,3 +25,5 @@ databaseChangeLog:
       file: db/changelog/changeset/012-add-pgtrgm-extension.yaml
   - include:
       file: db/changelog/changeset/013-add-organization-latin.yaml
+  - include:
+      file: db/changelog/changeset/014-modify-interview-columns.yaml
