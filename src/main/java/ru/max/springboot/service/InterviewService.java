@@ -1,5 +1,6 @@
 package ru.max.springboot.service;
 
+import org.springframework.web.multipart.MultipartFile;
 import ru.max.springboot.dto.InterviewDTO;
 import ru.max.springboot.dto.InterviewResponseDTO;
 import ru.max.springboot.model.Interview;
@@ -26,4 +27,6 @@ public interface InterviewService {
     List<InterviewResponseDTO> searchFuzzyAllByOrganization(String term);
 
     List<InterviewResponseDTO> searchFuzzyByUserAllByOrganization(String term, User user);
+
+    void importFromExcel(MultipartFile file) throws Exception;
 }

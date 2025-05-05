@@ -1,30 +1,44 @@
 package ru.max.springboot.service.impl;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import ru.max.springboot.dto.InterviewDTO;
 import ru.max.springboot.dto.InterviewResponseDTO;
 import ru.max.springboot.model.Interview;
 import ru.max.springboot.model.InterviewStatus;
+import ru.max.springboot.model.Role;
 import ru.max.springboot.model.User;
 import ru.max.springboot.repository.InterviewRepository;
 import ru.max.springboot.repository.UserRepository;
 import ru.max.springboot.service.InterviewService;
+import ru.max.springboot.service.RoleService;
+import ru.max.springboot.service.UserService;
 import ru.max.springboot.util.Transliteration;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class InterviewServiceImpl implements InterviewService {
 
     private final InterviewRepository interviewRepository;
+    private final UserService userService;
+    private final RoleService roleService;
 
     @Autowired
-    public InterviewServiceImpl(InterviewRepository interviewRepository) {
+    public InterviewServiceImpl(InterviewRepository interviewRepository, UserService userService, RoleService roleService) {
         this.interviewRepository = interviewRepository;
+        this.userService = userService;
+        this.roleService = roleService;
     }
 
     //Получение собеседований для пользователя
@@ -139,6 +153,91 @@ public class InterviewServiceImpl implements InterviewService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    @Override
+    public void importFromExcel(MultipartFile file) throws Exception {
+        DataFormatter formatter = new DataFormatter();
+        try (InputStream inputStream = file.getInputStream();
+             Workbook workbook = WorkbookFactory.create(inputStream)) {
+
+            Sheet sheet = workbook.getSheetAt(0); // пропускаем первую строку (заголовок)
+
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) { //проход по всем строкам со второй до последней не пустой
+                Row row = sheet.getRow(rowIndex);
+                if (row == null) {
+                    continue;
+                }
+
+                String email = String.valueOf(row.getCell(1));
+                if (email.isEmpty()) {
+                    continue;
+                }
+
+                String importedStatus = String.valueOf(row.getCell(8)).trim();
+                InterviewStatus status = (importedStatus.equalsIgnoreCase("offer")
+                        || importedStatus.equalsIgnoreCase("apply"))
+                        ? InterviewStatus.OFFERED
+                        : InterviewStatus.PASSED;
+
+                Optional<User> optUser = Optional.ofNullable(userService.findByEmail(email));
+                User user = optUser.orElseGet(() -> {
+
+                    User u = new User();
+                    u.setName("-");
+                    u.setEmail(email);
+                    u.setPassword("import");
+                    Role userRole = roleService.findByRole("ROLE_USER")
+                            .orElseThrow(() -> new RuntimeException("Ошибка при назначении роли пользователю"));
+
+                    u.setRoles(Set.of(userRole));
+                    u.setAge(18);
+                    return userService.save(u);
+                });
+
+                LocalDateTime importedDateTime = row.getCell(0).getLocalDateTimeCellValue();
+                String importedOrganization = String.valueOf(row.getCell(2));
+                String importedProject = String.valueOf(row.getCell(3));
+                String importedInterviewNote = String.valueOf(row.getCell(5));
+
+                // парсинг 6 столба как строку, даже если в Excel она числовая
+                String salaryText = formatter.formatCellValue(row.getCell(6)).trim();
+                BigDecimal importedSalaryOffer = null;
+                if (!salaryText.isEmpty()) {
+                    try {
+                        importedSalaryOffer = new BigDecimal(salaryText);
+                    } catch (NumberFormatException ex) {
+                        throw new IllegalArgumentException("Неверный формат: " + salaryText, ex);
+                    }
+                }
+                BigDecimal importedOffer = (status == InterviewStatus.OFFERED)
+                        ? importedSalaryOffer
+                        : null;
+
+                String importedGrade = String.valueOf(row.getCell(7));
+                final String JOB_LINK = "https://hh.ru";
+
+                Interview interview = new Interview();
+                interview.setDataTime(importedDateTime);
+                interview.setOrganization(importedOrganization);
+                interview.setOrganizationLatin(importedOrganization);
+                interview.setProject(importedProject);
+                interview.setInterviewNotes(importedInterviewNote);
+                interview.setSalaryOffer(importedSalaryOffer);
+                interview.setFinalOffer(importedOffer);
+                interview.setGrade(importedGrade);
+                interview.setJobLink(JOB_LINK);
+                interview.setContact("-");
+                interview.setComments("-");
+                interview.setStatus(status);
+
+                interview.setUser(user);
+                interviewRepository.save(interview);
+            }
+        } catch (InvalidFormatException e) {
+            throw new IllegalArgumentException("Неподдерживаемый формат файла", e);
+        }
+    }
+
     //Преобразование в InterviewResponseDTO
     private InterviewResponseDTO mapToResponseDTO(Interview interview) {
         InterviewResponseDTO dto = new InterviewResponseDTO();
@@ -156,6 +255,7 @@ public class InterviewServiceImpl implements InterviewService {
         dto.setFinalOffer(interview.getFinalOffer());
         dto.setUserId(interview.getUser().getId());
         dto.setUserName(interview.getUser().getName());
+        dto.setEmail(interview.getUser().getEmail());
         return dto;
     }
 }
