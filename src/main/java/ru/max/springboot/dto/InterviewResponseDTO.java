@@ -23,6 +23,7 @@ public class InterviewResponseDTO {
     private Long userId;
     private String userName;
     private String email;
+    private String telegramUsername;
 
     public String getStatusLabel() {
         return status != null ? status.getLabel() : null;

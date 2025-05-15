@@ -77,10 +77,6 @@ public class UserServiceImpl implements UserService {
         if (findByEmail(userDto.getEmail()) != null) {
             throw new RuntimeException("Пользователь с таким email уже существует");
         }
-        //проверка на уникальность имени
-        if (findByName(userDto.getName()).isPresent()) {
-            throw new RuntimeException("Пользователь с таким именем уже существует");
-        }
 
         User user = new User();
         user.setName(userDto.getName());
@@ -131,8 +127,13 @@ public class UserServiceImpl implements UserService {
     //поиск пользователя по его telegramId
     @Override
     public User findByTelegramId(Long telegramId) {
-
         return userRepository.findByTelegramId(telegramId).orElse(null);
+    }
+
+    //поиск пользователя по его telegramUserName
+    @Override
+    public User findByTelegramUserName(String telegramUserName) {
+        return userRepository.findByTelegramUsername(telegramUserName).orElse(null);
     }
 
     @Override
@@ -145,12 +146,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User updateUser(Long id, UserDTO userDto) {
         User userToBeUpdated = findUserById(id);
-
-        // проверка на уникальность пользователя по имени
-        if (!userToBeUpdated.getName().equals(userDto.getName()) &&
-                userRepository.findByName(userDto.getName()).isPresent()) {
-            throw new RuntimeException("Пользователь с таким именем уже существует");
-        }
 
         // проверка на уникальность пользователя по email
         if (!userToBeUpdated.getEmail().equals(userDto.getEmail()) &&

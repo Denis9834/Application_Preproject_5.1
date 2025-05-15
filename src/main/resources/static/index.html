@@ -26,13 +26,13 @@
 <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
 
 <!--Навигационная панель (бар)-->
-<header class="navbar navbar-dark bg-dark">
+<header class="navbar navbar-dark bg-dark py-1">
     <div class="container-fluid">
-        <span class="navbar-brand" id="user-info-role">
+        <span class="navbar-brand fs-6" id="user-info-role">
 <!--Сюда загружается информация о пользователе отображаемая в баре в script.js-->
         </span>
         <form id="logoutForm" method="post">
-            <button class="btn btn-outline-light" type="submit">Выход</button>
+            <button class="btn btn-outline-light btn-sm" type="submit">Выход</button>
         </form>
     </div>
 </header>
@@ -45,10 +45,10 @@
 
     <div class="tab-content flex-grow-1">
         <!--  Информация о пользователе-->
-        <main class="container-fluid mt-5 tab-pane fade" id="userPanel">
-            <h2>Страница пользователя</h2>
+        <main class="container-fluid mt-3 tab-pane fade" id="userPanel">
+            <h4>Страница пользователя</h4>
             <!-- Вкладки -->
-            <ul class="nav nav-tabs" id="userTabs" role="tablist">
+            <ul class="nav nav-tabs mt-3" id="userTabs" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link active" id="profile-tab" data-bs-toggle="tab" href="#profilePanel"
                        role="tab">О пользователе</a>
@@ -56,6 +56,11 @@
                 <li class="nav-item">
                     <a class="nav-link" id="my-interviews-tab" data-bs-toggle="tab" href="#interviewsPanel" role="tab">Мои
                         собеседования</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="all-interviews-tab" data-bs-toggle="tab"
+                       href="#allInterviewsForUser" role="tab">
+                        Все собеседования</a>
                 </li>
             </ul>
             <!-- Контейнер вкладок -->
@@ -120,15 +125,53 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Вкладка: Все собеседования -->
+                <div id="allInterviewsForUser" class="tab-pane fade">
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <input type="text" id="searchAllOrganizationUser" class="form-control"
+                                   placeholder="Поиск по организации"
+                                   style="background-color: #f0f8ff; color: #333; border: 2px solid #4CAF50; border-radius: 8px;">
+                        </div>
+                    </div>
+                    <div style="max-height: 600px; overflow-y: auto;">
+                        <table id="interviewsAllTable"
+                               class="table table-bordered table-hover text-center align-middle w-100 mb-0"
+                               style="width: 100%;">
+                            <thead class="table-light"
+                                   style="position: sticky; top: 0; background-color: white; z-index: 2;">
+                            <tr class="align-middle">
+                                <th>Имя</th>
+                                <th>Email</th>
+                                <th>Организация</th>
+                                <th>Грейд</th>
+                                <th>Ссылка на вакансию</th>
+                                <th>Контакт</th>
+                                <th>Проект</th>
+                                <th>Дата</th>
+                                <th>Желаемая ЗП</th>
+                                <th>Оффер</th>
+                                <th>О собеседовании</th>
+                                <th>Комментарии</th>
+                                <th>Статус</th>
+                            </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                            <!-- Сюда вставится JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </main>
 
         <!--Панель управления-->
-        <main class="container-fluid mt-5 tab-pane fade" id="adminPanel">
-            <h2>Панель администратора</h2>
+        <main class="container-fluid mt-3 tab-pane fade" id="adminPanel">
+            <h4>Панель администратора</h4>
 
             <!--Вкладки-->
-            <ul class="nav nav-tabs" id="adminTabs">
+            <ul class="nav nav-tabs mt-3" id="adminTabs">
                 <li class="nav-item">
                     <a class="nav-link active" id="users-tab" data-bs-toggle="tab" href="#allUsers">Все пользователи</a>
                 </li>

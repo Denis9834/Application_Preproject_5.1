@@ -26,5 +26,7 @@ public interface UserService extends UserDetailsService {
 
     User findByTelegramId(Long telegramId);
 
+    User findByTelegramUserName(String telegramUserName);
+
     User save(User user);
 }

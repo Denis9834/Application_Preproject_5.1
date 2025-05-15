@@ -1,12 +1,23 @@
 package ru.max.springboot.util;
 
 import com.ibm.icu.text.Transliterator;
+import org.mapstruct.Named;
+import org.springframework.stereotype.Component;
 
-public final class Transliteration {
+@Component
+public class Transliteration {
     private static final String CYRILLIC_TO_LATIN = "Russian-Latin/BGN";
-    private static final Transliterator TO_LATIN = Transliterator.getInstance(CYRILLIC_TO_LATIN);
+    private final Transliterator transliterator;
 
-    public static String toLatin(String text) {
-        return TO_LATIN.transliterate(text);
+    public Transliteration() {
+        this.transliterator = Transliterator.getInstance(CYRILLIC_TO_LATIN);
+    }
+
+    @Named("toLatin")
+    public String toLatin(String text) {
+        if (text == null || text.isBlank()) {
+            return null;
+        }
+        return transliterator.transliterate(text);
     }
 }

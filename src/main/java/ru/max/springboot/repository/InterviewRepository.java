@@ -15,25 +15,25 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
 
     //fuzzy поиск у Admin
     @Query(value = """
-        SELECT * FROM interviews
-         WHERE lower(organization) LIKE '%' || lower(:term) || '%'
-            OR lower(organization_latin) LIKE '%' || lower(:term) || '%'
-            OR lower(organization) % lower(:term)
-            OR lower(organization_latin) % lower(:term)
-            OR lower(organization) LIKE '%' || lower(:termLatin) || '%'
-            OR lower(organization_latin) LIKE '%' || lower(:termLatin) || '%'
-            OR lower(organization) % lower(:termLatin)
-            OR lower(organization_latin) % lower(:termLatin)
-         ORDER BY
-           (lower(organization) LIKE '%' || lower(:term) || '%'
-            OR lower(organization_latin) LIKE '%' || lower(:term) || '%'
-            OR lower(organization) LIKE '%' || lower(:termLatin) || '%'
-            OR lower(organization_latin) LIKE '%' || lower(:termLatin) || '%') DESC,
-           similarity(lower(organization), lower(:term)) DESC,
-           similarity(lower(organization_latin), lower(:term)) DESC,
-           similarity(lower(organization), lower(:termLatin)) DESC,
-           similarity(lower(organization_latin), lower(:termLatin)) DESC
-         """, nativeQuery = true)
+            SELECT * FROM interviews
+             WHERE organization LIKE '%' || :term || '%'
+                OR organization_latin LIKE '%' || :term || '%'
+                OR organization % :term
+                OR organization_latin % :term
+                OR organization LIKE '%' || :termLatin || '%'
+                OR organization_latin LIKE '%' || :termLatin || '%'
+                OR organization % :termLatin
+                OR organization_latin % :termLatin
+             ORDER BY
+               (organization LIKE '%' || :term || '%'
+                OR organization_latin LIKE '%' || :term || '%'
+                OR organization LIKE '%' || :termLatin || '%'
+                OR organization_latin LIKE '%' || :termLatin || '%') DESC,
+               similarity(organization, :term) DESC,
+               similarity(organization_latin, :term) DESC,
+               similarity(organization, :termLatin) DESC,
+               similarity(organization_latin, :termLatin) DESC
+            """, nativeQuery = true)
     List<Interview> searchFuzzyAllByOrganization(@Param("term") String term,
                                                  @Param("termLatin") String termLatin);
 
@@ -42,24 +42,23 @@ public interface InterviewRepository extends JpaRepository<Interview, Long> {
         SELECT * FROM interviews
          WHERE user_id = :userId
            AND (
-             lower(organization) LIKE '%' || lower(:term) || '%'
-             OR lower(organization_latin) LIKE '%' || lower(:term) || '%'
-             OR lower(organization) % lower(:term)
-             OR lower(organization_latin) % lower(:term)
-             OR lower(organization) LIKE '%' || lower(:termLatin) || '%'
-             OR lower(organization_latin) LIKE '%' || lower(:termLatin) || '%'
-             OR lower(organization) % lower(:termLatin)
-             OR lower(organization_latin) % lower(:termLatin)
-           )
+            organization LIKE '%' || :term || '%'
+            OR organization_latin LIKE '%' || :term || '%'
+            OR organization % :term
+            OR organization_latin % :term
+            OR organization LIKE '%' || :termLatin || '%'
+            OR organization_latin LIKE '%' || :termLatin || '%'
+            OR organization % :termLatin
+            OR organization_latin % :termLatin
          ORDER BY
-           (lower(organization) LIKE '%' || lower(:term) || '%'
-            OR lower(organization_latin) LIKE '%' || lower(:term) || '%'
-            OR lower(organization) LIKE '%' || lower(:termLatin) || '%'
-            OR lower(organization_latin) LIKE '%' || lower(:termLatin) || '%') DESC,
-           similarity(lower(organization), lower(:term)) DESC,
-           similarity(lower(organization_latin), lower(:term)) DESC,
-           similarity(lower(organization), lower(:termLatin)) DESC,
-           similarity(lower(organization_latin), lower(:termLatin)) DESC
+           (organization LIKE '%' || :term || '%'
+            OR organization_latin LIKE '%' || :term || '%'
+            OR organization LIKE '%' || :termLatin || '%'
+            OR organization_latin LIKE '%' || :termLatin || '%') DESC,
+           similarity(organization, :term) DESC,
+           similarity(organization_latin, :term) DESC,
+           similarity(organization, :termLatin) DESC,
+           similarity(organization_latin, :termLatin) DESC
          """, nativeQuery = true)
     List<Interview> searchFuzzyByUserAllByOrganization(@Param("userId") Long userId,
                                                        @Param("term") String term,

@@ -82,7 +82,7 @@ public class InterviewRestController {
         return ResponseEntity.ok("Оффер добавлен");
     }
 
-    // Все собеседования для Admin
+    // Все собеседования
     @GetMapping("/all")
     public ResponseEntity<List<InterviewResponseDTO>> getAllInterviews() {
         return ResponseEntity.ok(interviewServiceImpl.getAllInterviews());

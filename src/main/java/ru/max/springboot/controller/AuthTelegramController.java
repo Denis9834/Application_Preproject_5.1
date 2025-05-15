@@ -48,17 +48,24 @@ public class AuthTelegramController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid signature");
         }
 
-        Long telegramId = Long.valueOf(telegramData.get("id"));
-
-        User user = userServiceImpl.findByTelegramId(telegramId);
+        String telegramUsername = telegramData.get("username");
+        if (telegramUsername == null || telegramUsername.isBlank()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("username is required");
+        }
+        User user = userServiceImpl.findByTelegramUserName(telegramUsername);
 
         if (user == null) {
             user = new User();
-            user.setTelegramId(telegramId);
-            user.setName(telegramData.get("first_name") +
-                    (telegramData.get("last_name") != null ? " " + telegramData.get("last_name") : " "));
-            user.setEmail("tg_" + telegramId + "@telegram.ru");
-            user.setAge(0);
+            user.setTelegramUsername(telegramUsername);
+            String name = telegramData.get("first_name")
+                    + (telegramData.get("last_name") != null
+                    ? " " + telegramData.get("last_name")
+                    : "");
+            user.setName(name);
+            user.setEmail(telegramUsername + "@telegram.ru");
+            user.setAge(18);
             user.setRoles(Set.of(roleServiceImpl.findByRole("ROLE_USER")
                     .orElseThrow(() -> new RuntimeException("Role not found: ROLE_USER"))));
             user.setPassword(passwordEncoder().encode(UUID.randomUUID().toString()));
@@ -72,7 +79,7 @@ public class AuthTelegramController {
         request.getSession(true).setAttribute(
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext()
         );
-        return ResponseEntity.ok("ok");
+        return ResponseEntity.ok(user.getEmail());
     }
 
     private boolean telegramDataIsValid(Map<String, String> data) {

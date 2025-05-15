@@ -64,4 +64,11 @@ public class Interview {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @PrePersist
+    @PreUpdate
+    private void allUpperCase() {
+        if (organization != null) organization = organization.toUpperCase();
+        if (organizationLatin != null) organizationLatin = organizationLatin.toUpperCase();
+    }
 }

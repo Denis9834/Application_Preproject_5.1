@@ -6,7 +6,8 @@ $(document).ready(function () {
     loadCurrentUser();
     loadUserRolesSidebar();
     loadAllInterviews();
-    loadUserInterviews()
+    loadUserInterviews();
+    loadAllInterviewsForUser();
 });
 
 //Загрузка пользователя в бар (отображение инфы о текущем пользователе)
@@ -87,11 +88,18 @@ function loadCurrentUser() {
             const tableBodyUser = $('#userTable-user tbody');
             tableBodyUser.empty();
             const roles = user.roles.map(r => r.role.replace("ROLE_", "")).join(' ');
+            let emailCell;
+            if (user.email.endsWith('@telegram.ru')) {
+                emailCell = "***";
+            } else {
+                // обычный email
+                emailCell = `<span title="${user.email}">${user.email}</span>`;
+            }
             const row = `
                         <tr>
                             <td>${user.id}</td>
                             <td>${user.name}</td>
-                            <td>${user.email}</td>
+                            <td>${emailCell}</td>
                             <td>${user.age}</td>
                            <td>${roles}</td>
                         </tr>
@@ -116,11 +124,19 @@ function loadUsers() {
             tableBody.empty();
             data.forEach(user => {
                 const roles = user.roles.map(r => r.replace("ROLE_", "")).join(' ');
+                let emailCell;
+                if (user.email.endsWith('@telegram.ru')) {
+                    const username = user.email.slice(0, user.email.indexOf('@'));
+                    emailCell = `<a href="https://t.me/${username}" target="_blank">@${username}</a>`;
+                } else {
+                    // обычный email
+                    emailCell = `<span title="${user.email}">${user.email}</span>`;
+                }
                 const row = `
                         <tr>
                             <td>${user.id}</td>
                             <td>${user.name}</td>
-                            <td>${user.email}</td>
+                            <td>${emailCell}</td>
                             <td>${user.age}</td>
                             <td>${roles}</td>
                             <td>
@@ -145,14 +161,23 @@ function loadAllInterviews() {
         method: 'GET',
         dataType: 'json',
         success: function (data) {
+            data.sort((a, b) => new Date(b.dataTime) - new Date(a.dataTime));
             const tableBody = $('#interviewsAll tbody');
             tableBody.empty();
             data.forEach(interview => {
+                let emailCell;
+                if (interview.telegramUsername) {
+                    const username = interview.telegramUsername;
+                    emailCell = `<a href="https://t.me/${username}" target="_blank" class="truncate-text">@${username}</a>`;
+                } else {
+                    // обычный email
+                    emailCell = `<span class="truncate-text" title="${interview.email}">${interview.email}</span>`;
+                }
                 const row = `
                 <tr>
                         <td>${interview.userId}</td>
-                        <td><span class="truncate-text" title="${interview.userName}">${interview.userName}</span></td>
-                        <td><span class="truncate-text" title="${interview.email}">${interview.email}</span></td>
+                        <td>${interview.userName}</td>
+                        <td>${emailCell}</td>
                         <td><span class="truncate-text" title="${interview.organization}">${interview.organization}</span></td>
                         <td>${interview.grade}</td>
                         <td>
@@ -205,6 +230,7 @@ function loadUserInterviews() {
         method: 'GET',
         dataType: 'json',
         success: function (interviews) {
+            interviews.sort((a, b) => new Date(b.dataTime) - new Date(a.dataTime));
             const tbody = $('#interviewsTable tbody');
             tbody.empty();
             interviews.forEach(interview => {
@@ -247,6 +273,56 @@ function loadUserInterviews() {
                     </tr>
                 `;
                 tbody.append(row);
+            });
+        },
+        error: function () {
+            showMessage('error', 'Не удалось загрузить собеседования');
+        }
+    });
+}
+
+// получение ВСЕХ собеседований у User
+function loadAllInterviewsForUser() {
+    $.ajax({
+        url: '/api/interviews/all',
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            data.sort((a, b) => new Date(b.dataTime) - new Date(a.dataTime));
+            const tableBody = $('#interviewsAllTable tbody');
+            tableBody.empty();
+            data.forEach(interview => {
+                const row = `
+                <tr>
+                        <td>***</td>
+                        <td>***</td>
+                        <td><span class="truncate-text" title="${interview.organization}">${interview.organization}</span></td>
+                        <td>${interview.grade}</td>
+                        <td>
+                        <a href="${interview.jobLink}" target="_blank" 
+                            class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover" 
+                            style="--bs-link-hover-color-rgb: 25, 135, 84;">
+                            <svg xmlns="http://www.w3.org/2000/svg" 
+                            width="16" height="16" fill="currentColor" 
+                            class="bi bi-arrow-down-right-circle" 
+                            viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" 
+                                d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
+                                    </svg>
+                                Ссылка                                    
+                            </a>
+                        </td>
+                        <td>***</td>
+                        <td><!--<<span class="truncate-text" title="${interview.project}">-->${interview.project}<!--</span>--></td>
+                        <td>${new Date(interview.dataTime).toLocaleString()}</td>
+                        <td><span class="truncate-text" title="${interview.salaryOffer}">${interview.salaryOffer}</span></td>
+                        <td><span class="truncate-text" title="${interview.finalOffer}">${interview.finalOffer == null ? "-" : interview.finalOffer}</span></td>
+                        <td><!--<<span class="truncate-text" title="${interview.interviewNotes}">-->${interview.interviewNotes == null ? "-" : interview.interviewNotes}<!--</span>--></td>
+                        <td><!--<<span class="truncate-text" title="${interview.comments}">-->${interview.comments}<!--</span>--></td>
+                        <td>${interview.statusLabel}</td>
+                    </tr>
+                `;
+                tableBody.append(row);
             });
         },
         error: function () {
@@ -506,8 +582,10 @@ $(document).on('click', '.edit-user-interview', function () {
             $('#editSalaryOffer').val(interview.salaryOffer);
             $('#editComments').val(interview.comments);
             currentStatus = interview.status;
-            $('#editFinalOffer').prop('disabled', currentStatus !== 'OFFERED');
-            $('#editInterviewNotes').prop('disabled',currentStatus !== 'PASSED' && currentStatus !== 'OFFERED');
+            $('#editFinalOffer').val(interview.finalOffer)
+                .prop('disabled', currentStatus !== 'OFFERED');
+            $('#editInterviewNotes').val(interview.interviewNotes)
+                .prop('disabled',currentStatus !== 'PASSED' && currentStatus !== 'OFFERED');
             $('#editInterviewModal').modal('show');
         },
 
@@ -619,7 +697,7 @@ $('#passedInterviewForm').on('submit', function (e) {
 $(document).on('click', '.offer-received-btn', function () {
     var interviewId = $(this).data('id');
     $('#offerForm').data('interviewId', interviewId);
-    $('offerAmount').val('');
+    $('#offerAmount').val('');
     $('#offerModal').modal('show');
 });
 
@@ -739,6 +817,59 @@ $('#searchMyOrganization').on('input', function () {
                             <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
                             <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
                         </td>
+                    </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                })
+                .fail(() => showMessage('error', 'Ошибка поиска'));
+        }
+    }, 300); // 300 мс задержки после последнего нажатия
+});
+
+let userSearchTimeoutAllInterviews;
+//поиск у User "Все собеседования"
+$('#searchAllOrganizationUser').on('input', function () {
+    clearTimeout(userSearchTimeoutAllInterviews);
+    const term = $(this).val().trim();
+
+    userSearchTimeoutAllInterviews = setTimeout(() => {
+        if (!term) {
+            loadAllInterviewsForUser();  // Если строка пустая — покажем всё
+        } else {
+            $.getJSON('/api/interviews/all/search', {term})
+                .done(function (data) {
+                    const tbody = $('#interviewsAllTable tbody');
+                    tbody.empty();
+                    data.forEach(interview => {
+                        const row = `
+                        <tr>
+                        <td>***</td>
+                        <td>***</td>
+                        <td><span class="truncate-text" title="${interview.organization}">${interview.organization}</span></td>
+                        <td>${interview.grade}</td>
+                        <td>
+                        <a href="${interview.jobLink}" target="_blank" 
+                            class="jobLinkPreview link-offset-2 link-underline link-underline-opacity-0 icon-link icon-link-hover" 
+                            style="--bs-link-hover-color-rgb: 25, 135, 84;">
+                            <svg xmlns="http://www.w3.org/2000/svg" 
+                            width="16" height="16" fill="currentColor" 
+                            class="bi bi-arrow-down-right-circle" 
+                            viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" 
+                                d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 5.146a.5.5 0 1 0-.708.708L9.243 9.95H6.475a.5.5 0 1 0 0 1h3.975a.5.5 0 0 0 .5-.5V6.475a.5.5 0 1 0-1 0v2.768L5.854 5.146z"/>
+                                    </svg>
+                                Ссылка                                    
+                            </a>
+                        </td>
+                        <td>***</td>
+                        <td><!--<<span class="truncate-text" title="${interview.project}">-->${interview.project}<!--</span>--></td>
+                        <td>${new Date(interview.dataTime).toLocaleString()}</td>
+                        <td><span class="truncate-text" title="${interview.salaryOffer}">${interview.salaryOffer}</span></td>
+                        <td><span class="truncate-text" title="${interview.finalOffer}">${interview.finalOffer == null ? "-" : interview.finalOffer}</span></td>
+                        <td><!--<<span class="truncate-text" title="${interview.interviewNotes}">-->${interview.interviewNotes == null ? "-" : interview.interviewNotes}<!--</span>--></td>
+                        <td><!--<<span class="truncate-text" title="${interview.comments}">-->${interview.comments}<!--</span>--></td>
+                        <td>${interview.statusLabel}</td>
                     </tr>
                         `;
                         tbody.append(row);

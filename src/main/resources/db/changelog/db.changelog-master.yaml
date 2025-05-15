@@ -27,3 +27,5 @@ databaseChangeLog:
       file: db/changelog/changeset/013-add-organization-latin.yaml
   - include:
       file: db/changelog/changeset/014-modify-interview-columns.yaml
+  - include:
+      file: db/changelog/changeset/015-add-telegram-username-to-user.yaml

@@ -64,6 +64,9 @@ public class User implements UserDetails {
     @Column(name = "telegram_id", unique = true)
     private Long telegramId;
 
+    @Column(name = "telegram_username", unique = true)
+    private String telegramUsername;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
