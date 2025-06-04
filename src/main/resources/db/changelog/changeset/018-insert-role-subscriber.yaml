@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-role-subscriber-03062025
+      author: Denis9834
+      changes:
+        - insert:
+            tableName: roles
+            columns:
+              - column:
+                  name: role
+                  value: "ROLE_SUBSCRIBER"

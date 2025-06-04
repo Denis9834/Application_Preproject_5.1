@@ -29,4 +29,8 @@ public interface UserService extends UserDetailsService {
     User findByTelegramUserName(String telegramUserName);
 
     User save(User user);
+
+    boolean validateBoostyAccess(String email, Long telegramId);
+
+    void updateTelegramUserInfo(Long telegramId, String boostyEmail, String telegramUsername);
 }

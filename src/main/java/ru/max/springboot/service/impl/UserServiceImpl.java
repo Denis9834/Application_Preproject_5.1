@@ -9,12 +9,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.max.springboot.dto.UserDTO;
 import ru.max.springboot.dto.UserResponseDTO;
+import ru.max.springboot.dto.boosty.BoostySubscriberInfo;
 import ru.max.springboot.model.Role;
 import ru.max.springboot.model.User;
 import ru.max.springboot.repository.RoleRepository;
 import ru.max.springboot.repository.UserRepository;
 import ru.max.springboot.service.UserService;
+import ru.max.springboot.service.boosty.BoostySubscriberService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,14 +31,16 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleServiceImpl roleService;
+    private final BoostySubscriberService boostySubscriberService;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder,
-                           RoleServiceImpl roleService) {
+                           RoleServiceImpl roleService, BoostySubscriberService boostySubscriberService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
+        this.boostySubscriberService = boostySubscriberService;
     }
 
     //Список всех пользователей
@@ -110,7 +115,8 @@ public class UserServiceImpl implements UserService {
                 user.getAge(),
                 user.getRoles().stream()
                         .map(Role::getRole)
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toList()),
+                user.getTelegramUsername()
         );
     }
 
@@ -139,6 +145,103 @@ public class UserServiceImpl implements UserService {
     @Override
     public User save(User user) {
         return userRepository.save(user);
+    }
+
+    /**
+     * - поиск пользователя по email и id
+     * - получение информации о подписке
+     * - если подписка активна - сохранить статус и дату след. оплаты
+     */
+    @Override
+    public boolean validateBoostyAccess(String email, Long telegramId) {
+        Optional<User> userOptional = userRepository.findByEmailAndTelegramId(email, telegramId);
+        User user = userOptional.orElse(null);
+
+        //проверка на активность подписки из локального кеша
+        boolean validCache = user != null &&
+                user.getBoostyNextPayTime() != null &&
+                user.getBoostyNextPayTime().isAfter(LocalDateTime.now()) &&
+                "active".equalsIgnoreCase(user.getBoostyStatus());
+
+        if (validCache) {
+            log.info("Подписка active из кэша: {}", user.getEmail());
+            return true;
+        }
+
+        log.info("Проверка подписки через Boosty для email: {}", email);
+        //запрос на бусти для информации о подписки
+        BoostySubscriberInfo info = boostySubscriberService.fetchSubscriberInfo(email);
+
+        if (info == null || !"active".equalsIgnoreCase(info.getStatus())) {
+            log.info("Подписка не найдена или неактивна: {}", email);
+
+            if (user != null) {
+                user.setBoostyStatus("inactive");
+                user.setBoostyNextPayTime(null);
+                userRepository.save(user);
+                log.info("Статус подписки пользователя {} обновлён на inactive", email);
+            }
+            return false;
+        }
+
+        if (user == null) {
+            user = new User();
+            user.setEmail(email);
+            user.setTelegramId(telegramId);
+        }
+
+        user.setBoostyStatus("active");
+        user.setBoostyNextPayTime(info.getNextPayTime());
+
+        boolean hasSubscriberRole = user.getRoles().stream()
+                .anyMatch(r -> "ROLE_SUBSCRIBER".equalsIgnoreCase(r.getRole()));
+
+        if (!hasSubscriberRole) {
+            Optional<Role> role = roleRepository.findByRole("ROLE_SUBSCRIBER");
+            if (role.isPresent()) {
+                user.getRoles().add(role.get());
+            }
+        }
+
+        userRepository.save(user);
+        log.info("Данные пользователя обновлены по подписке Boosty: {}", user.getEmail());
+
+        return true;
+    }
+
+    /**
+     * обновление email, username (если с бусти пришли обновленные) и статуса подписки в бд
+     */
+    @Override
+    @Transactional
+    public void updateTelegramUserInfo(Long telegramId, String boostyEmail, String telegramUsername) {
+        Optional<User> userOptional = userRepository.findByTelegramId(telegramId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            //обновление email
+            user.setEmail(boostyEmail);
+            log.info("Email пользователя обновлен: {}", telegramId);
+
+            //обновление username пользователя с ТГ
+            if (telegramUsername != null && !telegramUsername.equals(user.getTelegramUsername())) {
+                user.setTelegramUsername(telegramUsername);
+                log.info("Username пользователя обновлен: {}", telegramId);
+            }
+
+            //обновление статуса подписки
+            BoostySubscriberInfo info = boostySubscriberService.fetchSubscriberInfo(boostyEmail);
+            if (info != null && "active".equalsIgnoreCase(info.getStatus())) {
+                user.setBoostyStatus(info.getStatus());
+                user.setBoostyNextPayTime(info.getNextPayTime());
+
+                Role role = roleRepository.findByRole("ROLE_SUBSCRIBER")
+                        .orElseThrow(() -> new RuntimeException("Роль SUBSCRIBER не найдена"));
+                user.getRoles().add(role);
+            }
+            userRepository.save(user);
+        } else {
+            log.warn("Пользователь с Telegram ID {} не найден", telegramId);
+        }
     }
 
     //обновление пользователя

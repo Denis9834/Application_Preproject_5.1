@@ -17,4 +17,5 @@ public class UserResponseDTO {
     private String email;
     private int age;
     private List<String> roles;
+    private String telegramUsername;
 }

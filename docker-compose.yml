@@ -32,6 +32,11 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_NAME}
+      BOOSTY_BLOG_USERNAME: ${BOOSTY_BLOG_USERNAME}
+      BOOSTY_SESSION_PATH: /secrets/boosty_session.json
+    volumes:
+      - ./secrets/boosty_session.json:/secrets/boosty_session.json:ro
     logging:
       driver: "json-file"
       options:

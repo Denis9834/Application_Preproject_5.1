@@ -26,3 +26,8 @@ logging:
 telegram:
   bot:
     token: ${TELEGRAM_BOT_TOKEN}
+    name: ${TELEGRAM_BOT_NAME}
+
+boosty:
+  blog:
+    username: ${BOOSTY_BLOG_USERNAME}

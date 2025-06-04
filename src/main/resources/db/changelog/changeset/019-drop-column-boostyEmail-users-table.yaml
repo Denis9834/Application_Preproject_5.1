@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: drop-column-boostyEmail-users-table-04062025
+      author: Denis9834
+      changes:
+        - dropColumn:
+            columnName: boosty_email
+            tableName: users

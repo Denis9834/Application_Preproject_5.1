@@ -29,4 +29,6 @@ public class UserDTO {
 
     private List<Long> roleId;
 
+    private String telegramUsername;
+
 }

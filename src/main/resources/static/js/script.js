@@ -124,24 +124,38 @@ function loadUsers() {
             tableBody.empty();
             data.forEach(user => {
                 const roles = user.roles.map(r => r.replace("ROLE_", "")).join(' ');
-                let emailCell;
-                if (user.email.endsWith('@telegram.ru')) {
-                    const username = user.email.slice(0, user.email.indexOf('@'));
-                    emailCell = `<a href="https://t.me/${username}" target="_blank">@${username}</a>`;
+
+                // Определение поля username
+                let usernameCell;
+                if (user.telegramUsername && user.telegramUsername.trim() !== "") {
+                    usernameCell = `<a href="https://t.me/${user.telegramUsername}" target="_blank">@${user.telegramUsername}</a>`;
                 } else {
-                    // обычный email
+                    usernameCell = `<span>-</span>`;
+                }
+
+                // Определение поля email
+                let emailCell;
+                if (user.email && user.email.endsWith('@telegram.ru')) {
+                    emailCell = `<span>-</span>`;
+                } else {
                     emailCell = `<span title="${user.email}">${user.email}</span>`;
                 }
+
                 const row = `
                         <tr>
                             <td>${user.id}</td>
                             <td>${user.name}</td>
+                            <td>${usernameCell}</td>
                             <td>${emailCell}</td>
                             <td>${user.age}</td>
                             <td>${roles}</td>
                             <td>
-                                <button class="btn btn-success edit-btn" data-id="${user.id}">Редактировать</button>
-                                <button class="btn btn-danger delete-btn" data-id="${user.id}">Удалить</button>
+                                <button class="btn btn-success edit-btn" data-id="${user.id}" title="Редактировать">
+                                    ✏️
+                                </button>
+                                <button class="btn btn-danger delete-btn" data-id="${user.id}" title="Удалить">
+                                    🗑️
+                                </button>
                             </td>
                         </tr>
                     `;
@@ -165,18 +179,26 @@ function loadAllInterviews() {
             const tableBody = $('#interviewsAll tbody');
             tableBody.empty();
             data.forEach(interview => {
-                let emailCell;
-                if (interview.telegramUsername) {
-                    const username = interview.telegramUsername;
-                    emailCell = `<a href="https://t.me/${username}" target="_blank" class="truncate-text">@${username}</a>`;
+                // Определение поля username
+                let usernameCell;
+                if (interview.telegramUsername && interview.telegramUsername.trim() !== "") {
+                    usernameCell = `<a href="https://t.me/${interview.telegramUsername}" target="_blank">@${interview.telegramUsername}</a>`;
                 } else {
-                    // обычный email
+                    usernameCell = `<span>-</span>`;
+                }
+
+                // Определение поля email
+                let emailCell;
+                if (interview.email && interview.email.endsWith('@telegram.ru')) {
+                    emailCell = `<span>-</span>`;
+                } else {
                     emailCell = `<span class="truncate-text" title="${interview.email}">${interview.email}</span>`;
                 }
                 const row = `
                 <tr>
-                        <td>${interview.userId}</td>
+                        <td><span class="truncate-text">${interview.userId}</span</td>
                         <td>${interview.userName}</td>
+                        <td>${usernameCell}</td>
                         <td>${emailCell}</td>
                         <td><span class="truncate-text" title="${interview.organization}">${interview.organization}</span></td>
                         <td>${interview.grade}</td>
@@ -204,13 +226,21 @@ function loadAllInterviews() {
                         <td>${interview.statusLabel}</td>
                         
                         <td>
-                            ${interview.status === 'SCHEDULED' ?
-                    `<button type="button" class="btn btn-info passed-interview-btn mb-2" 
-                            data-id="${interview.id}">Прошел собеседование</button>` : ''}
-                            ${interview.status === 'SCHEDULED' || interview.status === 'PASSED' ?
-                    `<button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>` : ""}
-                            <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
-                            <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
+                            <div class="d-grid gap-1 text-center" style="grid-template-columns: repeat(2, 1fr);">
+                                    ${interview.status === 'SCHEDULED' ? `
+                                <button class="btn btn-sm btn-primary passed-interview-btn" data-id="${interview.id}" 
+                                        title="Собеседование пройдено">✅</button>` : `<button class="btn btn-sm invisible">_</button>`}
+
+                                    ${(interview.status === 'SCHEDULED' || interview.status === 'PASSED') ? `
+                                <button class="btn btn-sm btn-warning offer-received-btn" data-id="${interview.id}" 
+                                        title="Оффер">💵</button>` : `<button class="btn btn-sm invisible">_</button>`}
+
+                                <button class="btn btn-sm btn-success edit-user-interview" data-id="${interview.id}" 
+                                        title="Редактировать">✏️</button>
+
+                                <button class="btn btn-sm btn-danger delete-user-interview" data-id="${interview.id}" 
+                                        title="Удалить">🗑️</button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -262,13 +292,21 @@ function loadUserInterviews() {
                         <td>${interview.statusLabel}</td>
                         
                         <td>
-                            ${interview.status === 'SCHEDULED' ?
-                    `<button type="button" class="btn btn-info passed-interview-btn mb-2" 
-                            data-id="${interview.id}">Прошел собеседование</button>` : ''}
-                            ${interview.status === 'SCHEDULED' || interview.status === 'PASSED' ?
-                    `<button class="btn btn-warning offer-received-btn mb-2" data-id="${interview.id}">Получен оффер</button>` : ""}
-                            <button class="btn btn-success edit-user-interview mb-2" data-id="${interview.id}">Редактировать</button>
-                            <button class="btn btn-danger delete-user-interview" data-id="${interview.id}">Удалить</button>
+                            <div class="d-grid gap-1 text-center" style="grid-template-columns: repeat(2, 1fr);">
+                                    ${interview.status === 'SCHEDULED' ? `
+                                <button class="btn btn-sm btn-primary passed-interview-btn" data-id="${interview.id}" 
+                                        title="Собеседование пройдено">✅</button>` : `<button class="btn btn-sm invisible">_</button>`}
+
+                                    ${(interview.status === 'SCHEDULED' || interview.status === 'PASSED') ? `
+                                <button class="btn btn-sm btn-warning offer-received-btn" data-id="${interview.id}" 
+                                        title="Оффер">💵</button>` : `<button class="btn btn-sm invisible">_</button>`}
+
+                                <button class="btn btn-sm btn-success edit-user-interview" data-id="${interview.id}" 
+                                        title="Редактировать">✏️</button>
+
+                                <button class="btn btn-sm btn-danger delete-user-interview" data-id="${interview.id}" 
+                                        title="Удалить">🗑️</button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -974,3 +1012,18 @@ $(document).ready(function () {
         });
     });
 });
+
+// $.ajax({
+//     url: '/api/boosty/post',
+//     method: 'GET',
+//     data: {
+//         blog: 'interviewstest',
+//         postId: 'df521213-8197-45ad-b641-6966dd23be6d'
+//     },
+//     success: function (data) {
+//         console.log("Контент Boosty:", data);
+//     },
+//     error: function (xhr) {
+//         alert("Ошибка: " + xhr.responseText);
+//     }
+// });

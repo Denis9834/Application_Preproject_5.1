@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-boosty-email-to-user-240525
+      author: Denis9834
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: boosty_email
+                  type: varchar(255)

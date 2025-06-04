@@ -1,10 +1,7 @@
 package ru.max.springboot.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -17,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -31,7 +29,6 @@ public class User implements UserDetails {
     private Long id;
 
     @NotEmpty(message = "Поле не должно быть пустым")
-//    @Size(min = 2, max = 50, message = "Имя должно быть в диапазоне от 2 до 50 символов")
     @Column(name = "name")
     private String name;
 
@@ -64,8 +61,14 @@ public class User implements UserDetails {
     @Column(name = "telegram_id", unique = true)
     private Long telegramId;
 
-    @Column(name = "telegram_username", unique = true)
+    @Column(name = "telegram_username")
     private String telegramUsername;
+
+    @Column(name = "boosty_status")
+    private String boostyStatus;
+
+    @Column(name = "boosty_next_pay_time")
+    private LocalDateTime boostyNextPayTime;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

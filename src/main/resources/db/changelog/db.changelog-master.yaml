@@ -29,3 +29,11 @@ databaseChangeLog:
       file: db/changelog/changeset/014-modify-interview-columns.yaml
   - include:
       file: db/changelog/changeset/015-add-telegram-username-to-user.yaml
+  - include:
+      file: db/changelog/changeset/016-add-boosty-email-to-user.yaml
+  - include:
+      file: db/changelog/changeset/017-add-boosty-fields-to-users.yaml
+  - include:
+      file: db/changelog/changeset/018-insert-role-subscriber.yaml
+  - include:
+      file: db/changelog/changeset/019-drop-column-boostyEmail-users-table.yaml

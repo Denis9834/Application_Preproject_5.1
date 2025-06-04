@@ -1,16 +1,13 @@
-package ru.max.springboot.controller;
+package ru.max.springboot.controller.telegram;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import ru.max.springboot.model.User;
@@ -20,6 +17,7 @@ import ru.max.springboot.service.impl.UserServiceImpl;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.MessageDigest;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -27,6 +25,16 @@ import java.util.UUID;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static ru.max.springboot.config.SecurityConfig.passwordEncoder;
 
+/**
+ * Контроллер аутентификации через ТГ
+ *
+ * - Принимаются данные от Telegram WebApp
+ * - Проверяется подлинность данных через алгоритм Telegram Login Widget
+ * - Если пользователя с таким id нет - то создается новый
+ * - выполняется авторизация пользователя
+ */
+
+@Slf4j
 @RestController
 @RequestMapping("/api/auth/telegram")
 public class AuthTelegramController {
@@ -45,16 +53,12 @@ public class AuthTelegramController {
     public ResponseEntity<String> authenticate(@RequestBody Map<String, String> telegramData,
                                                HttpServletRequest request) {
         if (!telegramDataIsValid(telegramData)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("invalid signature");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Недействительная подпись");
         }
 
         String telegramUsername = telegramData.get("username");
-        if (telegramUsername == null || telegramUsername.isBlank()) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("username is required");
-        }
-        User user = userServiceImpl.findByTelegramUserName(telegramUsername);
+        Long telegramId = Long.valueOf(telegramData.get("id"));
+        User user = userServiceImpl.findByTelegramId(telegramId);
 
         if (user == null) {
             user = new User();
@@ -64,13 +68,17 @@ public class AuthTelegramController {
                     ? " " + telegramData.get("last_name")
                     : "");
             user.setName(name);
-            user.setEmail(telegramUsername + "@telegram.ru");
+            user.setEmail(telegramId + "@telegram.ru");
             user.setAge(18);
-            user.setRoles(Set.of(roleServiceImpl.findByRole("ROLE_USER")
-                    .orElseThrow(() -> new RuntimeException("Role not found: ROLE_USER"))));
+            user.setRoles(new HashSet<>(Set.of(roleServiceImpl.findByRole("ROLE_USER")
+                    .orElseThrow(() -> new RuntimeException("Роль USER не существует")))));
             user.setPassword(passwordEncoder().encode(UUID.randomUUID().toString()));
+            user.setTelegramId(Long.valueOf(telegramData.get("id")));
             user = userServiceImpl.save(user);
         }
+
+        /*дополнительная проверка если у User активная подписка на Boosty*/
+        userServiceImpl.validateBoostyAccess(user.getEmail(), user.getTelegramId());
 
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-boosty-fields-to-users-02062025
+      author: Denis9834
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: boosty_status
+                  type: varchar(50)
+              - column:
+                  name: boosty_next_pay_time
+                  type: timestamp
